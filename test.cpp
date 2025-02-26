@@ -3,26 +3,44 @@
 #include <fstream>
 #include <cmath>
 
-const double SPEED_OF_LIGHT = 3e8;  // m/s
+const double SPEED_OF_LIGHT = 3e8;  // en m/s
 
 // Émetteur Wi-Fi
 class Emitter {
-public:
-    double x, y, power, frequency;
 
-    Emitter(double x, double y, double power, double frequency)
-        : x(x), y(y), power(power), frequency(frequency) {}
+    private:
 
-    // Calcule la puissance reçue à une distance donnée (sans obstacles)
-    double computePower(double x_target, double y_target) const {
-        double d = std::sqrt(std::pow(x_target - x, 2) + std::pow(y_target - y, 2));
-        if (d == 0) return power; // Éviter la division par zéro
+        double x, y, power, frequency;
 
-        double wavelength = SPEED_OF_LIGHT / frequency;
-        double fspl = 20 * std::log10(d) + 20 * std::log10(frequency) + 20 * std::log10(4 * M_PI / SPEED_OF_LIGHT);
-        
-        return power - fspl; // En dB
-    }
+    public:
+
+        Emitter(double x, double y, double power, double frequency) : x(x), y(y), power(power), frequency(frequency) {
+            // Appel initialisé
+        }
+
+        Emitter(double x, double y, double power, double frequency) {
+            // Appel par défaut
+            this->x = x;
+            this->y = y;
+            this->power = power;
+            this->frequency = frequency;
+        }
+
+        // Calcule la puissance reçue à une distance donnée (sans obstacles)
+        double computePower(double x_target, double y_target) const {
+            double d = std::sqrt(std::pow(x_target - x, 2) + std::pow(y_target - y, 2));
+            if (d == 0) return power; // Éviter la division par zéro
+
+            double wavelength = SPEED_OF_LIGHT / frequency;
+            double fspl = 20 * std::log10(d) + 20 * std::log10(frequency) + 20 * std::log10(4 * M_PI / SPEED_OF_LIGHT);
+            
+            return power - fspl; // En dB
+        }
+
+        // Getters
+        double getX() const { return x; }
+        double getY() const { return y; }
+
 };
 
 // Mur / obstacle
@@ -69,7 +87,7 @@ public:
                     double power = emitter.computePower(x, y);
 
                     for (const auto& obstacle : obstacles) {
-                        if (obstacle.isBlocking(x, y, emitter.x, emitter.y)) {
+                        if (obstacle.isBlocking(x, y, emitter.getX(), emitter.getY())) {
                             power -= obstacle.attenuation;
                         }
                     }
