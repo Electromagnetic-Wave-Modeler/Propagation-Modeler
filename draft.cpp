@@ -8,22 +8,12 @@ const double SPEED_OF_LIGHT = 3e8;  // en m/s
 // Émetteur Wi-Fi
 class Emitter {
 
-    private:
+    public:
 
         double x, y, power, frequency;
 
-    public:
-
         Emitter(double x, double y, double power, double frequency) : x(x), y(y), power(power), frequency(frequency) {
             // Appel initialisé
-        }
-
-        Emitter(double x, double y, double power, double frequency) {
-            // Appel par défaut
-            this->x = x;
-            this->y = y;
-            this->power = power;
-            this->frequency = frequency;
         }
 
         // Calcule la puissance reçue à une distance donnée (sans obstacles)
@@ -87,7 +77,7 @@ public:
                     double power = emitter.computePower(x, y);
 
                     for (const auto& obstacle : obstacles) {
-                        if (obstacle.isBlocking(x, y, emitter.getX(), emitter.getY())) {
+                        if (obstacle.isBlocking(x, y, emitter.x, emitter.y)) {
                             power -= obstacle.attenuation;
                         }
                     }
