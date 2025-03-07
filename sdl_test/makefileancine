@@ -1,0 +1,9 @@
+TARGET = sdl
+
+all: $(TARGET)
+
+$(TARGET): sdl_test.cpp
+	g++ -S sdl_test.cpp -I SDL2/include -L SDL2/ -lSDL2 -o $(TARGET)
+
+run: $(TARGET)
+	./$(TARGET).exe
