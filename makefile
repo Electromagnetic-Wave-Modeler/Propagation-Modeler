@@ -1,8 +1,9 @@
-all: main exe clean
+TARGET = test
 
-main:
-	@g++ -o test test.cpp
-exe:
-	@./test
-clean:
-	@rm test
+all: $(TARGET) run
+
+$(TARGET): draft.cpp
+	g++ draft.cpp -o $(TARGET)
+
+run: $(TARGET)
+	./$(TARGET).exe

@@ -36,15 +36,44 @@ class Emitter {
 // Mur / obstacle
 class Obstacle {
 public:
-    double x1, y1, x2, y2;
+    int x1, y1, x2, y2;
     double attenuation; // dB de perte
 
     Obstacle(double x1, double y1, double x2, double y2, double attenuation)
         : x1(x1), y1(y1), x2(x2), y2(y2), attenuation(attenuation) {}
 
     bool isBlocking(double x, double y, double emitter_x, double emitter_y) const {
-        // Approximation : vérifie si le segment passe par l'obstacle
-        return (x >= x1 && x <= x2 && y >= y1 && y <= y2);
+
+        // Formule de l'équation de la droite entre le point courant et la source
+        double a = x - emitter_x;
+        double b = y - emitter_y;
+        double c = b / a;
+        double d = emitter_y - c * emitter_x;
+        std::cout << c << std::endl;
+
+        double distance_emitter = std::pow(y - emitter_y,2) + std::pow(x - emitter_x,2);
+        if (x < emitter_x) distance_emitter = -distance_emitter;
+
+        //l'origine est le point (x1, y1), donc droite d'équation y = c * x
+
+        //si l'obstacle passe par la droite, alors est bloquant
+        for(double i = x1; i <= x2; i += 0.01){
+            for(double j = y1; j < y2; j += 0.01){
+
+                double distance = std::pow(j - emitter_y, 2) + std::pow(i - emitter_x, 2);
+
+                // if (i < emitter_x) distance = -distance;
+
+                if (((c * i + d) >= (j - j * 0.005) ) && ((c * i + d) <=  (j + j * 0.005)) && (distance <= distance_emitter)) {
+                    // if((x > emitter_x) && (distance <= distance_emitter) && (distance > 0))
+                    std::cout << "Obstacle bloquant" << std::endl;
+                    return true;
+                }
+            }
+        }
+        // std::cout << "pas " << std::endl;
+
+        return false;
     }
 };
 
@@ -60,7 +89,7 @@ public:
         powerMap.resize(height, std::vector<double>(width, -100.0)); // -100 dB par défaut
     }
 
-    void addEmitter(Emitter e) {
+    void addEmitter(Emitter e) {                    
         emitters.push_back(e);
     }
 
