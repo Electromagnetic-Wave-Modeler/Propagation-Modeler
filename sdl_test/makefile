@@ -1,14 +1,14 @@
-CC = gcc
+CC = g++
 
-SOURCES = sdl_test.c
-OBJS = ${SOURCES:.c=.o}
+SOURCES = sdl_test.cpp
+OBJS = ${SOURCES:.cpp=.o}
 
 all: build run
 
 build: ${OBJS}
-	@${CC} -o dist/programm.exe ${OBJS} -LSDL2/ -lSDL2
+	@${CC} -o dist/programm.exe ${OBJS} -LSDL2/ -lSDL2 
 
-%.o: %.c
+%.o: %.cpp
 	@${CC} -c $< -o $@ -ISDL2/include/
 
 run: dist/programm.exe

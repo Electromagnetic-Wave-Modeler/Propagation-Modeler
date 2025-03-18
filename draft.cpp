@@ -3,6 +3,8 @@
 #include <fstream>
 #include <cmath>
 
+#define RESOLUTION_FACTOR 100
+
 const double SPEED_OF_LIGHT = 3e8;  // en m/s
 
 // Émetteur Wi-Fi
@@ -18,7 +20,7 @@ class Emitter {
 
         // Calcule la puissance reçue à une distance donnée (sans obstacles)
         double computePower(double x_target, double y_target) const {
-            double d = std::sqrt(std::pow(x_target - x, 2) + std::pow(y_target - y, 2));
+            double d = std::sqrt(std::pow((x_target - x)/RESOLUTION_FACTOR, 2) + std::pow((y_target - y)/RESOLUTION_FACTOR, 2));
             if (d == 0) return power; // Éviter la division par zéro
 
             double wavelength = SPEED_OF_LIGHT / frequency;
@@ -49,7 +51,7 @@ public:
         double b = y - emitter_y;
         double c = b / a;
         double d = emitter_y - c * emitter_x;
-        std::cout << c << std::endl;
+        // std::cout << c << std::endl;
 
         double distance_emitter = std::pow(y - emitter_y,2) + std::pow(x - emitter_x,2);
         if (x < emitter_x) distance_emitter = -distance_emitter;
@@ -66,7 +68,7 @@ public:
 
                 if (((c * i + d) >= (j - j * 0.005) ) && ((c * i + d) <=  (j + j * 0.005)) && (distance <= distance_emitter)) {
                     // if((x > emitter_x) && (distance <= distance_emitter) && (distance > 0))
-                    std::cout << "Obstacle bloquant" << std::endl;
+                    // std::cout << "Obstacle bloquant" << std::endl;
                     return true;
                 }
             }
@@ -86,7 +88,7 @@ public:
     std::vector<std::vector<double>> powerMap;
 
     Room(int width, int height) : width(width), height(height) {
-        powerMap.resize(height, std::vector<double>(width, -100.0)); // -100 dB par défaut
+        powerMap.resize(height, std::vector<double>(width, -90.0)); // -90 dB par défaut
     }
 
     void addEmitter(Emitter e) {                    
@@ -137,13 +139,13 @@ public:
 };
 
 int main() {
-    Room room(50, 50);
+    Room room(400, 500);
 
     // Ajout d'un émetteur Wi-Fi
-    room.addEmitter(Emitter(10, 10, 30, 2.4e9)); // 30 dBm, 2.4 GHz
+    room.addEmitter(Emitter(250, 250, -30, 2.4e9)); // 30 dBm, 2.4 GHz
 
     // Ajout d'un mur qui bloque partiellement
-    room.addObstacle(Obstacle(20, 0, 20, 50, 10)); // Mur vertical, 10 dB d'atténuation
+    room.addObstacle(Obstacle(300, 0, 300, 350, 10)); // Mur vertical, 1 dB d'atténuation
 
     // Calcul de la puissance en chaque point
     room.computeSignalMap();
