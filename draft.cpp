@@ -4,6 +4,8 @@
 #include <cmath>
 
 #define RESOLUTION_FACTOR 100
+#define PRECISION 0.005
+#define PRECISION_INCREMENT 0.05
 
 const double SPEED_OF_LIGHT = 3e8;  // en m/s
 
@@ -59,21 +61,16 @@ public:
         //l'origine est le point (x1, y1), donc droite d'équation y = c * x
 
         //si l'obstacle passe par la droite, alors est bloquant
-        for(double i = x1; i <= x2; i += 0.01){
-            for(double j = y1; j < y2; j += 0.01){
+        for(double i = x1; i <= x2; i += PRECISION_INCREMENT){
+            for(double j = y1; j < y2; j += PRECISION_INCREMENT){
 
                 double distance = std::pow(j - emitter_y, 2) + std::pow(i - emitter_x, 2);
 
-                // if (i < emitter_x) distance = -distance;
-
-                if (((c * i + d) >= (j - j * 0.005) ) && ((c * i + d) <=  (j + j * 0.005)) && (distance <= distance_emitter)) {
-                    // if((x > emitter_x) && (distance <= distance_emitter) && (distance > 0))
-                    // std::cout << "Obstacle bloquant" << std::endl;
+                if (((c * i + d) >= (j - j * PRECISION) ) && ((c * i + d) <=  (j + j * PRECISION)) && (distance <= distance_emitter)) {
                     return true;
                 }
             }
         }
-        // std::cout << "pas " << std::endl;
 
         return false;
     }
@@ -139,19 +136,21 @@ public:
 };
 
 int main() {
-    Room room(400, 500);
+    Room room(300, 400);
 
     // Ajout d'un émetteur Wi-Fi
-    room.addEmitter(Emitter(250, 250, -30, 2.4e9)); // 30 dBm, 2.4 GHz
+    room.addEmitter(Emitter(150, 150, -30, 2.4e9)); // 30 dBm, 2.4 GHz
 
     // Ajout d'un mur qui bloque partiellement
-    room.addObstacle(Obstacle(300, 0, 300, 350, 10)); // Mur vertical, 1 dB d'atténuation
+    room.addObstacle(Obstacle(200, 0, 200, 300, 10)); // Mur vertical, 1 dB d'atténuation
 
     // Calcul de la puissance en chaque point
     room.computeSignalMap();
 
     // Export en CSV
     room.exportToCSV("heatmap.csv");
+
+    std::cout << "Done!" << std::endl;
 
     return 0;
 }
