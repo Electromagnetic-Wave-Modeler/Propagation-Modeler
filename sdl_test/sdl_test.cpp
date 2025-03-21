@@ -14,7 +14,7 @@ std::vector<std::vector<double>> loadCSV(const std::string& filename) {
     std::ifstream file(filename);
     
     if (!file.is_open()) {
-        std::cerr << "❌ Impossible d'ouvrir le fichier: " << filename << std::endl;
+        std::cerr << "Impossible d'ouvrir le fichier: " << filename << std::endl;
         return grid;
     }
     
@@ -37,7 +37,7 @@ std::vector<std::vector<double>> loadCSV(const std::string& filename) {
         }
     }
     
-    std::cout << "✅ Fichier CSV chargé avec succès. Dimensions: " 
+    std::cout << "Fichier CSV chargé avec succès. Dimensions: " 
               << grid.size() << "x" << (grid.empty() ? 0 : grid[0].size()) << std::endl;
     return grid;
 }
@@ -77,7 +77,7 @@ int main(int argc, char* argv[]) {
     std::vector<std::vector<double>> powerGrid = loadCSV(csvFile);
     
     if (powerGrid.empty()) {
-        std::cerr << "❌ Aucune donnée n'a été chargée depuis le fichier CSV" << std::endl;
+        std::cerr << "Aucune donnée n'a été chargée depuis le fichier CSV" << std::endl;
         return 1;
     }
     
@@ -110,7 +110,7 @@ int main(int argc, char* argv[]) {
     
     // Initialiser SDL
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-        std::cerr << "❌ Erreur d'initialisation SDL: " << SDL_GetError() << std::endl;
+        std::cerr << "Erreur d'initialisation SDL: " << SDL_GetError() << std::endl;
         return 1;
     }
     
@@ -180,6 +180,6 @@ int main(int argc, char* argv[]) {
     SDL_DestroyWindow(window);
     SDL_Quit();
     
-    std::cout << "✅ Visualisation terminée" << std::endl;
+    std::cout << "Visualisation terminee" << std::endl;
     return 0;
 }
