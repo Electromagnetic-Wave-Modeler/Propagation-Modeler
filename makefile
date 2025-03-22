@@ -1,9 +1,13 @@
-TARGET = test
+TARGET = dist/main
+
+SOURCES = main.cpp src/display.cpp
+OBJS = ${SOURCES:.cpp=.o}
+SDL2_PATH = lib/SDL2
 
 all: $(TARGET) run
 
-$(TARGET): draft.cpp
-	@g++ draft.cpp -o $(TARGET)
+$(TARGET): main.cpp
+	@g++ ${SOURCES} -o $(TARGET) -L${SDL2_PATH} -I${SDL2_PATH}/include/ -lSDL2 -Iheaders/
 
 run: $(TARGET)
 	@./$(TARGET).exe
