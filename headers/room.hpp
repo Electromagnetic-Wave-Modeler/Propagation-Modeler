@@ -1,6 +1,11 @@
 #ifndef ROOM_HPP
 #define ROOM_HPP
 
+#include <vector>
+#include "emitter.hpp"
+#include "obstacle.hpp"
+
+
 // Simulation avec grille
 class Room {
     public:

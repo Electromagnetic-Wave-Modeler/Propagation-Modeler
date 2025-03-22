@@ -33,11 +33,11 @@ int main() {
     room.computeSignalMap();
 
     // Export en CSV
-    room.exportToCSV("heatmap.csv");
+    // room.exportToCSV("heatmap.csv");
 
     std::cout << "Done!" << std::endl;
 
-    displaying();
+    displaying(&room.powerMap);
 
     return 0;
 }

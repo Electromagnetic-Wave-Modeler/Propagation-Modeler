@@ -71,26 +71,26 @@ SDL_Color dBmToColor(double power, double min_power, double max_power) {
     return color;
 }
 
-int displaying(void){
+int displaying(std::vector<std::vector<double>>* powerGrid){
     const std::string csvFile = "heatmap.csv";
     const int cellSize = 1;  // Taille du carré en pixels
     
     // Charger les données
-    std::vector<std::vector<double>> powerGrid = loadCSV(csvFile);
+    // std::vector<std::vector<double>> powerGrid = room.powerMap;//loadCSV(csvFile);
     
-    if (powerGrid.empty()) {
+    if ((*powerGrid).empty()) {
         std::cerr << "Aucune donnee n'a ete chargee depuis le fichier CSV" << std::endl;
         return 1;
     }
     
-    int gridHeight = powerGrid.size();
-    int gridWidth = powerGrid[0].size();
+    int gridHeight = powerGrid->size();
+    int gridWidth = (*powerGrid)[0].size();
     
     // Trouver les valeurs min et max
     double minPower = std::numeric_limits<double>::max();
     double maxPower = std::numeric_limits<double>::lowest();
     
-    for (const auto& row : powerGrid) {
+    for (const auto& row : *powerGrid) {
         for (double val : row) {
             if (!std::isnan(val)) {
                 minPower = std::min(minPower, val);
@@ -102,7 +102,7 @@ int displaying(void){
     std::cout << "Puissance min: " << minPower << " dBm, max: " << maxPower << " dBm" << std::endl;
     
     // Remplacer les NaN par la valeur minimale
-    for (auto& row : powerGrid) {
+    for (auto& row : *powerGrid) {
         for (auto& val : row) {
             if (std::isnan(val)) {
                 val = minPower;
@@ -143,7 +143,7 @@ int displaying(void){
     // Dessiner la heatmap
     for (int y = 0; y < gridHeight; y++) {
         for (int x = 0; x < gridWidth; x++) {
-            SDL_Color color = dBmToColor(powerGrid[y][x], minPower, maxPower);
+            SDL_Color color = dBmToColor((*powerGrid)[y][x], minPower, maxPower);
             SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
             
             SDL_Rect rect = {
