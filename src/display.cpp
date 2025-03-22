@@ -140,6 +140,7 @@ int displaying(std::vector<std::vector<double>>* powerGrid){
         return 1;
     }
     
+
     // Dessiner la heatmap
     for (int y = 0; y < gridHeight; y++) {
         for (int x = 0; x < gridWidth; x++) {
@@ -156,9 +157,9 @@ int displaying(std::vector<std::vector<double>>* powerGrid){
             SDL_RenderFillRect(renderer, &rect);
         }
     }
-    
-    // Afficher le résultat
+
     SDL_RenderPresent(renderer);
+
     
     // Attendre que l'utilisateur ferme la fenêtre
     bool running = true;
