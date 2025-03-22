@@ -39,7 +39,7 @@ std::vector<std::vector<double>> loadCSV(const std::string& filename) {
         }
     }
     
-    std::cout << "Fichier CSV chargé avec succès. Dimensions: " 
+    std::cout << "Fichier CSV charge avec succes. Dimensions: " 
               << grid.size() << "x" << (grid.empty() ? 0 : grid[0].size()) << std::endl;
     return grid;
 }
@@ -71,26 +71,26 @@ SDL_Color dBmToColor(double power, double min_power, double max_power) {
     return color;
 }
 
-int working(void){
+int displaying(std::vector<std::vector<double>>* powerGrid){
     const std::string csvFile = "heatmap.csv";
     const int cellSize = 1;  // Taille du carré en pixels
     
     // Charger les données
-    std::vector<std::vector<double>> powerGrid = loadCSV(csvFile);
+    // std::vector<std::vector<double>> powerGrid = room.powerMap;//loadCSV(csvFile);
     
-    if (powerGrid.empty()) {
+    if ((*powerGrid).empty()) {
         std::cerr << "Aucune donnee n'a ete chargee depuis le fichier CSV" << std::endl;
         return 1;
     }
     
-    int gridHeight = powerGrid.size();
-    int gridWidth = powerGrid[0].size();
+    int gridHeight = powerGrid->size();
+    int gridWidth = (*powerGrid)[0].size();
     
     // Trouver les valeurs min et max
     double minPower = std::numeric_limits<double>::max();
     double maxPower = std::numeric_limits<double>::lowest();
     
-    for (const auto& row : powerGrid) {
+    for (const auto& row : *powerGrid) {
         for (double val : row) {
             if (!std::isnan(val)) {
                 minPower = std::min(minPower, val);
@@ -102,7 +102,7 @@ int working(void){
     std::cout << "Puissance min: " << minPower << " dBm, max: " << maxPower << " dBm" << std::endl;
     
     // Remplacer les NaN par la valeur minimale
-    for (auto& row : powerGrid) {
+    for (auto& row : *powerGrid) {
         for (auto& val : row) {
             if (std::isnan(val)) {
                 val = minPower;
@@ -140,10 +140,11 @@ int working(void){
         return 1;
     }
     
+
     // Dessiner la heatmap
     for (int y = 0; y < gridHeight; y++) {
         for (int x = 0; x < gridWidth; x++) {
-            SDL_Color color = dBmToColor(powerGrid[y][x], minPower, maxPower);
+            SDL_Color color = dBmToColor((*powerGrid)[y][x], minPower, maxPower);
             SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
             
             SDL_Rect rect = {
@@ -156,9 +157,9 @@ int working(void){
             SDL_RenderFillRect(renderer, &rect);
         }
     }
-    
-    // Afficher le résultat
+
     SDL_RenderPresent(renderer);
+
     
     // Attendre que l'utilisateur ferme la fenêtre
     bool running = true;
