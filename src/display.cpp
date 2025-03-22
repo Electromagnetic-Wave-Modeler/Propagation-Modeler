@@ -39,7 +39,7 @@ std::vector<std::vector<double>> loadCSV(const std::string& filename) {
         }
     }
     
-    std::cout << "Fichier CSV chargé avec succès. Dimensions: " 
+    std::cout << "Fichier CSV charge avec succes. Dimensions: " 
               << grid.size() << "x" << (grid.empty() ? 0 : grid[0].size()) << std::endl;
     return grid;
 }
@@ -71,7 +71,7 @@ SDL_Color dBmToColor(double power, double min_power, double max_power) {
     return color;
 }
 
-int working(void){
+int displaying(void){
     const std::string csvFile = "heatmap.csv";
     const int cellSize = 1;  // Taille du carré en pixels
     

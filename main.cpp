@@ -37,7 +37,7 @@ int main() {
 
     std::cout << "Done!" << std::endl;
 
-    working();
+    displaying();
 
     return 0;
 }
