@@ -21,6 +21,7 @@ class Obstacle {
             max_x = std::max(x1, x2) + thickness/2;
             min_y = std::min(y1, y2) - thickness/2;
             max_y = std::max(y1, y2) + thickness/2;
+            std::cout << "min_x: " << min_x << " min_y: " << min_y << " max_x: " << max_x << " max_y: " << max_y << std::endl;
         }
     
         // Vérifier si un point est à l'intérieur de l'obstacle (avec épaisseur)
@@ -40,7 +41,7 @@ class Obstacle {
                 return (px >= x1 && px <= x2 && py >= y1 && py <= y2);
             }
         }
-    
+        
         // Optimisation: intersection entre ligne (émetteur-point) et obstacle avec épaisseur
         bool isBlocking(double x, double y, double emitter_x, double emitter_y) const {
             // Vérification rapide: si l'émetteur ou le point est à l'intérieur de l'obstacle
