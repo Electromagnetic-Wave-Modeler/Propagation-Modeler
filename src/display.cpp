@@ -92,7 +92,7 @@ int displaying(std::vector<std::vector<double>>* powerGrid){
     
     for (const auto& row : *powerGrid) {
         for (double val : row) {
-            if (!std::isnan(val)) {
+            if (!std::isnan(val) && val != -555) {
                 minPower = std::min(minPower, val);
                 maxPower = std::max(maxPower, val);
             }
@@ -144,7 +144,14 @@ int displaying(std::vector<std::vector<double>>* powerGrid){
     // Dessiner la heatmap
     for (int y = 0; y < gridHeight; y++) {
         for (int x = 0; x < gridWidth; x++) {
-            SDL_Color color = dBmToColor((*powerGrid)[y][x], minPower, maxPower);
+            //SDL_Color color = dBmToColor((*powerGrid)[y][x], minPower, maxPower);
+            double val = (*powerGrid)[y][x];
+            SDL_Color color;
+            if (val == -555) {
+                color = {0, 0, 0, 255}; // 黑色
+            } else {
+                color = dBmToColor(val, minPower, maxPower);
+            }
             SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
             
             SDL_Rect rect = {

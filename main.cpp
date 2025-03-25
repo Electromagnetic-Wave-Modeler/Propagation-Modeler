@@ -32,6 +32,9 @@ int main() {
     // Calcul de la puissance en chaque point
     room.computeSignalMap();
 
+    // Marquer les obstacles sur la heatmap
+    room.markObstaclesOnPowerMap();
+    
     // Export en CSV
     // room.exportToCSV("heatmap.csv");
 
