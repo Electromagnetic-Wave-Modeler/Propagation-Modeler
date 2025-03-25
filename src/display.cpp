@@ -148,7 +148,7 @@ int displaying(std::vector<std::vector<double>>* powerGrid){
             double val = (*powerGrid)[y][x];
             SDL_Color color;
             if (val == -555) {
-                color = {0, 0, 0, 255}; // 黑色
+                color = {0, 0, 0, 255}; // noir
             } else {
                 color = dBmToColor(val, minPower, maxPower);
             }

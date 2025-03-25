@@ -51,10 +51,8 @@ class Room {
         void markObstaclesOnPowerMap() {
             for (const auto& obstacle : obstacles) {
                 // Obtenir la limite de l'obstacle (en tenant compte de l'épaisseur)
-                double min_x = std::min(obstacle.x1, obstacle.x2) - obstacle.thickness/2;
-                double max_x = std::max(obstacle.x1, obstacle.x2) + obstacle.thickness/2;
-                double min_y = std::min(obstacle.y1, obstacle.y2) - obstacle.thickness/2;
-                double max_y = std::max(obstacle.y1, obstacle.y2) + obstacle.thickness/2;
+                double min_x, min_y, max_x, max_y;
+                obstacle.getExpandedBounds(min_x, min_y, max_x, max_y);
             
                 // Convertir en plage d'index de grille
                 int start_x = static_cast<int>(std::floor(min_x));
@@ -75,6 +73,23 @@ class Room {
                             powerMap[y][x] = -555; // Marquer comme valeur spéciale
                         }
                     }
+                }
+
+                // Marquez les bords de la pièce comme -555
+                // Le bord gauche (x=0) et le bord droit (x = largeur-1)
+                for (int y = 0; y < height; y++) {
+                    powerMap[y][0] = -555;               // le bord gauche
+                    powerMap[y][1] = -555;               // le bord gauche +1
+                    powerMap[y][width - 1] = -555;       // le bord droit
+                    powerMap[y][width - 2] = -555;       // le bord droit -1
+                }
+            
+                // Le bord supérieur (y=0) et le bord inférieur (y=height-1)
+                for (int x = 0; x < width; x++) {
+                    powerMap[0][x] = -555;               // Le bord supérieur
+                    powerMap[1][x] = -555;               // Le bord supérieur + 1
+                    powerMap[height - 1][x] = -555;      // Le bord inférieur
+                    powerMap[height - 2][x] = -555;      // Le bord inférieur - 1
                 }
             }
         }
