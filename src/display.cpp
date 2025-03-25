@@ -72,7 +72,7 @@ SDL_Color dBmToColor(double power, double min_power, double max_power) {
 }
 
 int displaying(std::vector<std::vector<double>>* powerGrid){
-    const std::string csvFile = "heatmap.csv";
+    // const std::string csvFile = "heatmap.csv";
     const int cellSize = 1;  // Taille du carré en pixels
     
     // Charger les données
@@ -190,7 +190,7 @@ int displaying(std::vector<std::vector<double>>* powerGrid){
     SDL_DestroyWindow(window);
     SDL_Quit();
     
-    std::cout << "Visualisation terminee" << std::endl;
+    std::cout << "Visualization completed" << std::endl;
 
     return 0;
 }
