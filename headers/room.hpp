@@ -11,7 +11,7 @@ class Room {
     public:
         int width, height;
         std::vector<Emitter> emitters;
-        std::vector<Obstacle> obstacles;
+        std::vector<Obstacle*> obstacles;
         std::vector<std::vector<double>> powerMap;
     
         Room(int width, int height) : width(width), height(height) {
@@ -22,7 +22,8 @@ class Room {
             emitters.push_back(e);
         }
     
-        void addObstacle(Obstacle o) {
+        void addObstacle(Obstacle* o) {
+            
             obstacles.push_back(o);
         }
     

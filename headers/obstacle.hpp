@@ -4,19 +4,40 @@
 // Mur / obstacle avec épaisseur
 class Obstacle {
     public:
+        // Destructeur virtuel pour permettre une destruction correcte des classes dérivées
+        virtual ~Obstacle() {};
+        
+        // Méthodes virtuelles pures que toutes les classes dérivées doivent implémenter
+        
+        // Vérifie si un point est à l'intérieur de l'obstacle
+        virtual bool isPointInside(double px, double py) const = 0;
+        
+        // Vérifie si l'obstacle bloque la ligne entre un émetteur et un point
+        virtual bool isBlocking(double x, double y, double emitter_x, double emitter_y) const = 0;
+        
+};
+
+
+//classe pour les murs verticaux et horizontaux
+class MurDroit:public Obstacle{
+    private:
+
         double x1, y1, x2, y2;
         double thickness; // Épaisseur du mur en unités de grille
         double attenuation; // dB de perte
-    
-        Obstacle(double x1, double y1, double x2, double y2, double thickness, double attenuation)
-            : x1(x1), y1(y1), x2(x2), y2(y2), thickness(thickness), attenuation(attenuation) {
+
+    public:
+
+        MurDroit(double x1, double y1, double x2, double y2, double thickness, double attenuation)
+        : x1(x1), y1(y1), x2(x2), y2(y2), thickness(thickness), attenuation(attenuation) {
             // Normaliser les coordonnées pour que (x1,y1) soit toujours le coin inférieur gauche
             if (x1 > x2) std::swap(x1, x2);
             if (y1 > y2) std::swap(y1, y2);
         }
-    
+
+
         // Vérifier si un point est à l'intérieur de l'obstacle (avec épaisseur)
-        bool isPointInside(double px, double py) const {
+        bool isPointInside(double px, double py) const override {
             // Pour un mur vertical
             if (std::abs(x1 - x2) < 0.001) {
                 return (px >= (x1 - thickness/2) && px <= (x1 + thickness/2) &&
@@ -32,9 +53,10 @@ class Obstacle {
                 return (px >= x1 && px <= x2 && py >= y1 && py <= y2);
             }
         }
-    
+
+
         // Optimisation: intersection entre ligne (émetteur-point) et obstacle avec épaisseur
-        bool isBlocking(double x, double y, double emitter_x, double emitter_y) const {
+        bool isBlocking(double x, double y, double emitter_x, double emitter_y) const override {
             // Vérification rapide: si l'émetteur ou le point est à l'intérieur de l'obstacle
             if (isPointInside(x, y) || isPointInside(emitter_x, emitter_y)) {
                 return true;
@@ -171,9 +193,19 @@ class Obstacle {
             
             return false;
         }
-    };
+};
 
 
-    
+//Classe qui gère un mur oblique (qui n'est ni horizontal ni vertical)
+class MurOblique : public Obstacle{
+    private :
+
+};
+
+
+class MeubleRond : public Obstacle {
+
+};
+
 
 #endif // OBSTACLE_HPP
