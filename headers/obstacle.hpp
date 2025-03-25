@@ -173,4 +173,7 @@ class Obstacle {
         }
     };
 
+
+    
+
 #endif // OBSTACLE_HPP

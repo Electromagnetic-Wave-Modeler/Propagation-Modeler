@@ -10,40 +10,6 @@
 
 #include "../headers/display.hpp"
 
-// Fonction pour charger les données de puissance WiFi depuis un CSV
-std::vector<std::vector<double>> loadCSV(const std::string& filename) {
-    std::vector<std::vector<double>> grid;
-    std::ifstream file(filename);
-    
-    if (!file.is_open()) {
-        std::cerr << "Impossible d'ouvrir le fichier: " << filename << std::endl;
-        return grid;
-    }
-    
-    std::string line;
-    while (std::getline(file, line)) {
-        std::vector<double> row;
-        std::stringstream ss(line);
-        std::string value;
-        
-        while (std::getline(ss, value, ',')) {
-            try {
-                row.push_back(std::stod(value));
-            } catch (const std::exception& e) {
-                row.push_back(std::numeric_limits<double>::quiet_NaN());
-            }
-        }
-        
-        if (!row.empty()) {
-            grid.push_back(row);
-        }
-    }
-    
-    std::cout << "Fichier CSV charge avec succes. Dimensions: " 
-              << grid.size() << "x" << (grid.empty() ? 0 : grid[0].size()) << std::endl;
-    return grid;
-}
-
 // Conversion dBm vers couleur RGB
 SDL_Color dBmToColor(double power, double min_power, double max_power) {
     // Normaliser la valeur entre 0 et 1
