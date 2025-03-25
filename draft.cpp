@@ -37,10 +37,14 @@ class Emitter {
 
 // Mur / obstacle
 class Obstacle {
-public:
-    int x1, y1, x2, y2;
+private:
+
+    std::vector<std::pair<double,double>> points;
     double attenuation; // dB de perte
 
+public:
+
+    // Constructeur
     Obstacle(double x1, double y1, double x2, double y2, double attenuation)
         : x1(x1), y1(y1), x2(x2), y2(y2), attenuation(attenuation) {}
 
