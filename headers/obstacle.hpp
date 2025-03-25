@@ -21,7 +21,7 @@ class Obstacle {
             max_x = std::max(x1, x2) + thickness/2;
             min_y = std::min(y1, y2) - thickness/2;
             max_y = std::max(y1, y2) + thickness/2;
-            std::cout << "min_x: " << min_x << " min_y: " << min_y << " max_x: " << max_x << " max_y: " << max_y << std::endl;
+            //std::cout << "min_x: " << min_x << " min_y: " << min_y << " max_x: " << max_x << " max_y: " << max_y << std::endl;
         }
     
         // Vérifier si un point est à l'intérieur de l'obstacle (avec épaisseur)
