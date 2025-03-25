@@ -14,6 +14,14 @@ class Obstacle {
             if (x1 > x2) std::swap(x1, x2);
             if (y1 > y2) std::swap(y1, y2);
         }
+
+        // Obtenir la limite de l'obstacle (en tenant compte de l'épaisseur)
+        void getExpandedBounds(double& min_x, double& min_y, double& max_x, double& max_y) const {
+            min_x = std::min(x1, x2) - thickness/2;
+            max_x = std::max(x1, x2) + thickness/2;
+            min_y = std::min(y1, y2) - thickness/2;
+            max_y = std::max(y1, y2) + thickness/2;
+        }
     
         // Vérifier si un point est à l'intérieur de l'obstacle (avec épaisseur)
         bool isPointInside(double px, double py) const {

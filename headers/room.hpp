@@ -46,6 +46,38 @@ class Room {
                 }
             }
         }
+
+        // Marquer les obstacles sur la heatmap
+        void markObstaclesOnPowerMap() {
+            for (const auto& obstacle : obstacles) {
+                // Obtenir la limite de l'obstacle (en tenant compte de l'épaisseur)
+                double min_x = std::min(obstacle.x1, obstacle.x2) - obstacle.thickness/2;
+                double max_x = std::max(obstacle.x1, obstacle.x2) + obstacle.thickness/2;
+                double min_y = std::min(obstacle.y1, obstacle.y2) - obstacle.thickness/2;
+                double max_y = std::max(obstacle.y1, obstacle.y2) + obstacle.thickness/2;
+            
+                // Convertir en plage d'index de grille
+                int start_x = static_cast<int>(std::floor(min_x));
+                int end_x = static_cast<int>(std::ceil(max_x));
+                int start_y = static_cast<int>(std::floor(min_y));
+                int end_y = static_cast<int>(std::ceil(max_y));
+            
+                // Assurez que l'index est dans les limites
+                start_x = std::max(0, start_x);
+                end_x = std::min(width - 1, end_x);
+                start_y = std::max(0, start_y);
+                end_y = std::min(height - 1, end_y);
+            
+                // Traverser la zone de grille couverte d'obstacles
+                for (int y = start_y; y <= end_y; y++) {
+                    for (int x = start_x; x <= end_x; x++) {
+                        if (obstacle.isPointInside(x, y)) {
+                            powerMap[y][x] = -555; // Marquer comme valeur spéciale
+                        }
+                    }
+                }
+            }
+        }
     
         void exportToCSV(const std::string& filename) {
             std::ofstream file(filename);
