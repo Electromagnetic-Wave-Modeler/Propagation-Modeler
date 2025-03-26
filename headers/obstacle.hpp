@@ -67,6 +67,12 @@ class Obstacle {
 
     // Vérifier si un segment (émetteur → point) est bloqué par l'obstacle
     bool isBlocking(double x, double y, double emitter_x, double emitter_y) const {
+
+        // Vérification rapide: si l'émetteur ou le point est à l'intérieur de l'obstacle
+        if (isPointInside(x, y) || isPointInside(emitter_x, emitter_y)) {
+            return true;
+        }
+
         if (type == ObstacleType::RECTANGLE) {
             return isRectangleBlocking(x, y, emitter_x, emitter_y);
         } 
@@ -76,15 +82,10 @@ class Obstacle {
         return false;
     }
 
-        
     private:
 
         // Optimisation: intersection entre ligne (émetteur-point) et obstacle avec épaisseur
         bool isRectangleBlocking(double x, double y, double emitter_x, double emitter_y) const {
-            // Vérification rapide: si l'émetteur ou le point est à l'intérieur de l'obstacle
-            if (isPointInside(x, y) || isPointInside(emitter_x, emitter_y)) {
-                return true;
-            }
     
             // Cas vertical optimisé (avec épaisseur)
             if (std::abs(x1 - x2) < 0.001) {
