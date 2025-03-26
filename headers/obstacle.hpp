@@ -10,6 +10,9 @@ class Obstacle {
 
         ObstacleType type;
 
+        // Constante pour les comparaisons de précision flottante
+        static constexpr double EPSILON = 1e-6;
+
         // Pour les rectangles
         double x1, y1, x2, y2;
         double thickness; // Épaisseur du mur en unités de grille
@@ -88,137 +91,259 @@ class Obstacle {
         bool isRectangleBlocking(double x, double y, double emitter_x, double emitter_y) const {
     
             // Cas vertical optimisé (avec épaisseur)
-            if (std::abs(x1 - x2) < 0.001) {
-                double wall_x = x1;
+            if (std::abs(x1 - x2) < EPSILON) {
+
+            //     double wall_x = x1;
                 
+            //     // Si l'émetteur et le point cible sont du même côté du mur, pas d'intersection
+            //     if ((emitter_x < wall_x - thickness/2 && x < wall_x - thickness/2) || 
+            //         (emitter_x > wall_x + thickness/2 && x > wall_x + thickness/2)) {
+            //         return false;
+            //     }
+                
+            //     // Si le mur est entre l'émetteur et le point cible
+            //     if ((emitter_x <= wall_x - thickness/2 && x >= wall_x - thickness/2) ||
+            //         (emitter_x >= wall_x + thickness/2 && x <= wall_x + thickness/2)) {
+            //         // Calcul du point d'intersection
+            //         if (std::abs(x - emitter_x) < 0.001) {
+            //             // Ligne verticale - vérifier si elle traverse le mur
+            //             if (std::min(y, emitter_y) <= y2 && std::max(y, emitter_y) >= y1) {
+            //                 return true;
+            //             }
+            //             return false;
+            //         }
+                    
+            //         double slope = (y - emitter_y) / (x - emitter_x);
+            //         double b = emitter_y - slope * emitter_x;
+                    
+            //         // Calcul des points d'intersection avec les deux faces du mur
+            //         double y_intersect1 = slope * (wall_x - thickness/2) + b;
+            //         double y_intersect2 = slope * (wall_x + thickness/2) + b;
+                    
+            //         // Vérifier si l'un des points d'intersection est dans la plage du mur avec une marge de sécurité
+            //         return ((y_intersect1 >= y1 - 0.001 && y_intersect1 <= y2 + 0.001) || 
+            //                 (y_intersect2 >= y1 - 0.001 && y_intersect2 <= y2 + 0.001));
+            //     }
+                
+            //     return false;
+            // }
+
+                double wall_x = x1;
+                double left = wall_x - thickness / 2;
+                double right = wall_x + thickness / 2;
+
                 // Si l'émetteur et le point cible sont du même côté du mur, pas d'intersection
-                if ((emitter_x < wall_x - thickness/2 && x < wall_x - thickness/2) || 
-                    (emitter_x > wall_x + thickness/2 && x > wall_x + thickness/2)) {
+                if ((emitter_x < left && x < left) || (emitter_x > right && x > right)) {
                     return false;
                 }
-                
+
                 // Si le mur est entre l'émetteur et le point cible
-                if ((emitter_x <= wall_x - thickness/2 && x >= wall_x - thickness/2) ||
-                    (emitter_x >= wall_x + thickness/2 && x <= wall_x + thickness/2)) {
+                if ((emitter_x <= left && x >= left) || (emitter_x >= right && x <= right)) {
                     // Calcul du point d'intersection
-                    if (std::abs(x - emitter_x) < 0.001) {
+                    double dx = x - emitter_x;
+                    if (std::abs(dx) < EPSILON) {
                         // Ligne verticale - vérifier si elle traverse le mur
-                        if (std::min(y, emitter_y) <= y2 && std::max(y, emitter_y) >= y1) {
-                            return true;
-                        }
-                        return false;
+                        return (std::min(y, emitter_y) <= y2 && std::max(y, emitter_y) >= y1);
                     }
-                    
-                    double slope = (y - emitter_y) / (x - emitter_x);
+
+                    double slope = (y - emitter_y) / dx;
                     double b = emitter_y - slope * emitter_x;
-                    
+
                     // Calcul des points d'intersection avec les deux faces du mur
-                    double y_intersect1 = slope * (wall_x - thickness/2) + b;
-                    double y_intersect2 = slope * (wall_x + thickness/2) + b;
-                    
-                    // Vérifier si l'un des points d'intersection est dans la plage du mur avec une marge de sécurité
-                    return ((y_intersect1 >= y1 - 0.001 && y_intersect1 <= y2 + 0.001) || 
-                            (y_intersect2 >= y1 - 0.001 && y_intersect2 <= y2 + 0.001));
+                    double t_left = (left - emitter_x) / dx;
+                    double y_left = slope * left + b;
+                    bool valid_left = (t_left >= 0 && t_left <= 1) && 
+                                    (y_left >= y1 - EPSILON && y_left <= y2 + EPSILON);
+
+                    double t_right = (right - emitter_x) / dx;
+                    double y_right = slope * right + b;
+                    bool valid_right = (t_right >= 0 && t_right <= 1) && 
+                                    (y_right >= y1 - EPSILON && y_right <= y2 + EPSILON);
+
+                    return valid_left || valid_right;
                 }
-                
+
                 return false;
             }
             
             // Cas horizontal optimisé (avec épaisseur)
-            if (std::abs(y1 - y2) < 0.001) {
-                double wall_y = y1;
+            if (std::abs(y1 - y2) < EPSILON) {
+
+            //     double wall_y = y1;
                 
+            //     // Si l'émetteur et le point cible sont du même côté du mur, pas d'intersection
+            //     if ((emitter_y < wall_y - thickness/2 && y < wall_y - thickness/2) || 
+            //         (emitter_y > wall_y + thickness/2 && y > wall_y + thickness/2)) {
+            //         return false;
+            //     }
+                
+            //     // Si le mur est entre l'émetteur et le point cible
+            //     if ((emitter_y <= wall_y - thickness/2 && y >= wall_y - thickness/2) ||
+            //         (emitter_y >= wall_y + thickness/2 && y <= wall_y + thickness/2)) {
+            //         // Calcul du point d'intersection
+            //         if (std::abs(y - emitter_y) < 0.001) {
+            //             // Ligne horizontale - vérifier si elle traverse le mur
+            //             if (std::min(x, emitter_x) <= x2 && std::max(x, emitter_x) >= x1) {
+            //                 return true;
+            //             }
+            //             return false;
+            //         }
+                    
+            //         double slope = (x - emitter_x) / (y - emitter_y);
+            //         double b = emitter_x - slope * emitter_y;
+                    
+            //         // Calcul des points d'intersection avec les deux faces du mur
+            //         double x_intersect1 = slope * (wall_y - thickness/2) + b;
+            //         double x_intersect2 = slope * (wall_y + thickness/2) + b;
+                    
+            //         // Vérifier si l'un des points d'intersection est dans la plage du mur avec une marge de sécurité
+            //         return ((x_intersect1 >= x1 - 0.001 && x_intersect1 <= x2 + 0.001) || 
+            //                 (x_intersect2 >= x1 - 0.001 && x_intersect2 <= x2 + 0.001));
+            //     }
+                
+            //     return false;
+            // }
+
+                double wall_y = y1;
+                double bottom = wall_y - thickness / 2;
+                double top = wall_y + thickness / 2;
+
                 // Si l'émetteur et le point cible sont du même côté du mur, pas d'intersection
-                if ((emitter_y < wall_y - thickness/2 && y < wall_y - thickness/2) || 
-                    (emitter_y > wall_y + thickness/2 && y > wall_y + thickness/2)) {
+                if ((emitter_y < bottom && y < bottom) || (emitter_y > top && y > top)) {
                     return false;
                 }
-                
+
                 // Si le mur est entre l'émetteur et le point cible
-                if ((emitter_y <= wall_y - thickness/2 && y >= wall_y - thickness/2) ||
-                    (emitter_y >= wall_y + thickness/2 && y <= wall_y + thickness/2)) {
+                if ((emitter_y <= bottom && y >= bottom) || (emitter_y >= top && y <= top)) {
                     // Calcul du point d'intersection
-                    if (std::abs(y - emitter_y) < 0.001) {
+                    double dy = y - emitter_y;
+                    if (std::abs(dy) < EPSILON) {
                         // Ligne horizontale - vérifier si elle traverse le mur
-                        if (std::min(x, emitter_x) <= x2 && std::max(x, emitter_x) >= x1) {
-                            return true;
-                        }
-                        return false;
+                        return (std::min(x, emitter_x) <= x2 && std::max(x, emitter_x) >= x1);
                     }
-                    
-                    double slope = (x - emitter_x) / (y - emitter_y);
+
+                    double slope = (x - emitter_x) / dy;
                     double b = emitter_x - slope * emitter_y;
-                    
+
                     // Calcul des points d'intersection avec les deux faces du mur
-                    double x_intersect1 = slope * (wall_y - thickness/2) + b;
-                    double x_intersect2 = slope * (wall_y + thickness/2) + b;
-                    
-                    // Vérifier si l'un des points d'intersection est dans la plage du mur avec une marge de sécurité
-                    return ((x_intersect1 >= x1 - 0.001 && x_intersect1 <= x2 + 0.001) || 
-                            (x_intersect2 >= x1 - 0.001 && x_intersect2 <= x2 + 0.001));
+                    double t_bottom = (bottom - emitter_y) / dy;
+                    double x_bottom = slope * bottom + b;
+                    bool valid_bottom = (t_bottom >= 0 && t_bottom <= 1) && 
+                                    (x_bottom >= x1 - EPSILON && x_bottom <= x2 + EPSILON);
+
+                    double t_top = (top - emitter_y) / dy;
+                    double x_top = slope * top + b;
+                    bool valid_top = (t_top >= 0 && t_top <= 1) && 
+                                    (x_top >= x1 - EPSILON && x_top <= x2 + EPSILON);
+
+                    return valid_bottom || valid_top;
                 }
-                
+
                 return false;
             }
             
-            // Pour les obstacles rectangulaires généraux avec épaisseur
-            // Créer un rectangle plus grand pour inclure l'épaisseur
-            double expanded_x1 = x1 - thickness/2;
-            double expanded_y1 = y1 - thickness/2;
-            double expanded_x2 = x2 + thickness/2;
-            double expanded_y2 = y2 + thickness/2;
+        //     // Pour les obstacles rectangulaires généraux avec épaisseur
+        //     // Créer un rectangle plus grand pour inclure l'épaisseur
+        //     double expanded_x1 = x1 - thickness/2;
+        //     double expanded_y1 = y1 - thickness/2;
+        //     double expanded_x2 = x2 + thickness/2;
+        //     double expanded_y2 = y2 + thickness/2;
             
-            // Segments qui composent les bords du rectangle élargi
-            std::pair<std::pair<double, double>, std::pair<double, double>> segments[4] = {
-                {{expanded_x1, expanded_y1}, {expanded_x2, expanded_y1}}, // segment bas
-                {{expanded_x2, expanded_y1}, {expanded_x2, expanded_y2}}, // segment droit
-                {{expanded_x2, expanded_y2}, {expanded_x1, expanded_y2}}, // segment haut
-                {{expanded_x1, expanded_y2}, {expanded_x1, expanded_y1}}  // segment gauche
-            };
+        //     // Segments qui composent les bords du rectangle élargi
+        //     std::pair<std::pair<double, double>, std::pair<double, double>> segments[4] = {
+        //         {{expanded_x1, expanded_y1}, {expanded_x2, expanded_y1}}, // segment bas
+        //         {{expanded_x2, expanded_y1}, {expanded_x2, expanded_y2}}, // segment droit
+        //         {{expanded_x2, expanded_y2}, {expanded_x1, expanded_y2}}, // segment haut
+        //         {{expanded_x1, expanded_y2}, {expanded_x1, expanded_y1}}  // segment gauche
+        //     };
             
-            // Définir la ligne entre l'émetteur et le point cible
-            double dx = x - emitter_x;
-            double dy = y - emitter_y;
+        //     // Définir la ligne entre l'émetteur et le point cible
+        //     double dx = x - emitter_x;
+        //     double dy = y - emitter_y;
             
-            // Si les points sont trop proches, considérer qu'il n'y a pas d'obstacle
-            if (std::abs(dx) < 0.001 && std::abs(dy) < 0.001) {
-                return false;
-            }
+        //     // Si les points sont trop proches, considérer qu'il n'y a pas d'obstacle
+        //     if (std::abs(dx) < 0.001 && std::abs(dy) < 0.001) {
+        //         return false;
+        //     }
             
-            // Calcul des intersections avec chacun des segments du rectangle
-            for (int i = 0; i < 4; i++) {
-                double x1s = segments[i].first.first;
-                double y1s = segments[i].first.second;
-                double x2s = segments[i].second.first;
-                double y2s = segments[i].second.second;
+        //     // Calcul des intersections avec chacun des segments du rectangle
+        //     for (int i = 0; i < 4; i++) {
+        //         double x1s = segments[i].first.first;
+        //         double y1s = segments[i].first.second;
+        //         double x2s = segments[i].second.first;
+        //         double y2s = segments[i].second.second;
                 
-                double dxs = x2s - x1s;
-                double dys = y2s - y1s;
+        //         double dxs = x2s - x1s;
+        //         double dys = y2s - y1s;
                 
-                // Calcul du déterminant
-                double det = dx * dys - dy * dxs;
+        //         // Calcul du déterminant
+        //         double det = dx * dys - dy * dxs;
                 
-                if (std::abs(det) < 0.001) continue; // Lignes parallèles
+        //         if (std::abs(det) < 0.001) continue; // Lignes parallèles
                 
-                double t = (dxs * (emitter_y - y1s) - dys * (emitter_x - x1s)) / det;
-                double u = (dx * (emitter_y - y1s) - dy * (emitter_x - x1s)) / det;
+        //         double t = (dxs * (emitter_y - y1s) - dys * (emitter_x - x1s)) / det;
+        //         double u = (dx * (emitter_y - y1s) - dy * (emitter_x - x1s)) / det;
                 
-                // Ajouter une petite marge pour éviter les erreurs d'arrondi
-                if (t >= -0.001 && t <= 1.001 && u >= -0.001 && u <= 1.001) {
-                    // Calculer les coordonnées du point d'intersection
-                    double intersect_x = emitter_x + t * dx;
-                    double intersect_y = emitter_y + t * dy;
+        //         // Ajouter une petite marge pour éviter les erreurs d'arrondi
+        //         if (t >= -0.001 && t <= 1.001 && u >= -0.001 && u <= 1.001) {
+        //             // Calculer les coordonnées du point d'intersection
+        //             double intersect_x = emitter_x + t * dx;
+        //             double intersect_y = emitter_y + t * dy;
                     
-                    // Vérifier si le point d'intersection est entre l'émetteur et la cible
-                    if (t >= 0 && t <= 1) {
-                        return true;
-                    }
-                }
-            }
+        //             // Vérifier si le point d'intersection est entre l'émetteur et la cible
+        //             if (t >= 0 && t <= 1) {
+        //                 return true;
+        //             }
+        //         }
+        //     }
             
-            return false;
+        //     return false;
+        // }
+
+            double expanded_x1 = x1 - thickness / 2;
+            double expanded_y1 = y1 - thickness / 2;
+            double expanded_x2 = x2 + thickness / 2;
+            double expanded_y2 = y2 + thickness / 2;
+
+            // Vérifier si le segment émetteur-point intersecte le rectangle élargi
+            return segmentIntersectsRectangle(
+                emitter_x, emitter_y, x, y,
+                expanded_x1, expanded_y1, expanded_x2, expanded_y2
+            );
         }
-    // };
+
+        // Vérifier si un segment intersecte un rectangle (algorithme de Liang-Barsky)
+        bool segmentIntersectsRectangle(
+            double x0, double y0, double x1, double y1,
+            double rect_x1, double rect_y1, double rect_x2, double rect_y2
+        ) const {
+            double t_min = 0.0;
+            double t_max = 1.0;
+            double dx = x1 - x0;
+            double dy = y1 - y0;
+
+            // Vérifier chaque bord du rectangle
+            double p[4] = { -dx, dx, -dy, dy };
+            double q[4] = { x0 - rect_x1, rect_x2 - x0, y0 - rect_y1, rect_y2 - y0 };
+
+            for (int i = 0; i < 4; i++) {
+                if (std::abs(p[i]) < EPSILON) {
+                    // Segment parallèle au bord
+                    if (q[i] < 0) return false;
+                } else {
+                    double t = q[i] / p[i];
+                    if (p[i] < 0) {
+                        if (t > t_min) t_min = t;
+                    } else {
+                        if (t < t_max) t_max = t;
+                    }
+                    if (t_min > t_max) return false;
+                }
+            }
+
+            return true;
+        }
+
     
         // Vérification de blocage pour un cercle
         bool isCircleBlocking(double x, double y, double emitter_x, double emitter_y) const {
