@@ -8,6 +8,7 @@
 #include <limits>
 #include <cmath>
 #include <cstdlib>
+#include <utility>
 
 #include "headers/emitter.hpp"
 #include "headers/obstacle.hpp"
