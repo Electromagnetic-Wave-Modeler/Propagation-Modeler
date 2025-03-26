@@ -1,19 +1,34 @@
 #ifndef OBSTACLE_HPP
 #define OBSTACLE_HPP
 
+enum class ObstacleType { RECTANGLE, CIRCLE };
+
 // Mur / obstacle avec épaisseur
 class Obstacle {
+
     public:
+
+        ObstacleType type;
+
+        // Pour les rectangles
         double x1, y1, x2, y2;
         double thickness; // Épaisseur du mur en unités de grille
+        
+        // Pour les cercles
+        double cx, cy, radius;
+
         double attenuation; // dB de perte
     
         Obstacle(double x1, double y1, double x2, double y2, double thickness, double attenuation)
-            : x1(x1), y1(y1), x2(x2), y2(y2), thickness(thickness), attenuation(attenuation) {
+            : type(ObstacleType::RECTANGLE), x1(x1), y1(y1), x2(x2), y2(y2), thickness(thickness), attenuation(attenuation) {
             // Normaliser les coordonnées pour que (x1,y1) soit toujours le coin inférieur gauche
             if (x1 > x2) std::swap(x1, x2);
             if (y1 > y2) std::swap(y1, y2);
         }
+
+        Obstacle(double cx, double cy, double radius, double attenuation)
+        : type(ObstacleType::CIRCLE), cx(cx), cy(cy), radius(radius), attenuation(attenuation),
+          x1(0), y1(0), x2(0), y2(0), thickness(0) {}
 
         // Obtenir la limite de l'obstacle (en tenant compte de l'épaisseur)
         void getExpandedBounds(double& min_x, double& min_y, double& max_x, double& max_y) const {
@@ -26,24 +41,46 @@ class Obstacle {
     
         // Vérifier si un point est à l'intérieur de l'obstacle (avec épaisseur)
         bool isPointInside(double px, double py) const {
-            // Pour un mur vertical
-            if (std::abs(x1 - x2) < 0.001) {
-                return (px >= (x1 - thickness/2) && px <= (x1 + thickness/2) &&
-                        py >= y1 && py <= y2);
+            if (type == ObstacleType::RECTANGLE) {
+                // Pour un mur vertical
+                if (std::abs(x1 - x2) < 0.001) {
+                    return (px >= (x1 - thickness/2) && px <= (x1 + thickness/2) &&
+                            py >= y1 && py <= y2);
+                }
+                // Pour un mur horizontal
+                else if (std::abs(y1 - y2) < 0.001) {
+                    return (py >= (y1 - thickness/2) && py <= (y1 + thickness/2) &&
+                            px >= x1 && px <= x2);
+                }
+                // Pour les autres types d'obstacles (rectangles, etc.)
+                else {
+                    return (px >= x1 && px <= x2 && py >= y1 && py <= y2);
+                }
+            } else if (type == ObstacleType::CIRCLE) {
+                // Pour un mur circulaire
+                double dx = px - cx;
+                double dy = py - cy;
+                return (dx * dx + dy * dy) <= (radius * radius);
             }
-            // Pour un mur horizontal
-            else if (std::abs(y1 - y2) < 0.001) {
-                return (py >= (y1 - thickness/2) && py <= (y1 + thickness/2) &&
-                        px >= x1 && px <= x2);
-            }
-            // Pour les autres types d'obstacles (rectangles, etc.)
-            else {
-                return (px >= x1 && px <= x2 && py >= y1 && py <= y2);
-            }
+            return false;    
         }
+
+    // Vérifier si un segment (émetteur → point) est bloqué par l'obstacle
+    bool isBlocking(double x, double y, double emitter_x, double emitter_y) const {
+        if (type == ObstacleType::RECTANGLE) {
+            return isRectangleBlocking(x, y, emitter_x, emitter_y);
+        } 
+        else if (type == ObstacleType::CIRCLE) {
+            return isCircleBlocking(x, y, emitter_x, emitter_y);
+        }
+        return false;
+    }
+
         
+    private:
+
         // Optimisation: intersection entre ligne (émetteur-point) et obstacle avec épaisseur
-        bool isBlocking(double x, double y, double emitter_x, double emitter_y) const {
+        bool isRectangleBlocking(double x, double y, double emitter_x, double emitter_y) const {
             // Vérification rapide: si l'émetteur ou le point est à l'intérieur de l'obstacle
             if (isPointInside(x, y) || isPointInside(emitter_x, emitter_y)) {
                 return true;
@@ -179,6 +216,27 @@ class Obstacle {
             }
             
             return false;
+        }
+    // };
+    
+        // Vérification de blocage pour un cercle
+        bool isCircleBlocking(double x, double y, double emitter_x, double emitter_y) const {
+            double dx = x - emitter_x;
+            double dy = y - emitter_y;
+            double fx = emitter_x - cx;
+            double fy = emitter_y - cy;
+    
+            double a = dx * dx + dy * dy;
+            double b = 2 * (fx * dx + fy * dy);
+            double c = fx * fx + fy * fy - radius * radius;
+    
+            double discriminant = b * b - 4 * a * c;
+            if (discriminant < 0) return false; // Pas d'intersection
+    
+            double t1 = (-b - std::sqrt(discriminant)) / (2 * a);
+            double t2 = (-b + std::sqrt(discriminant)) / (2 * a);
+    
+            return (t1 >= 0 && t1 <= 1) || (t2 >= 0 && t2 <= 1);
         }
     };
 
