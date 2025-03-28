@@ -140,7 +140,6 @@ int displaying(std::vector<std::vector<double>>* powerGrid){
         return 1;
     }
     
-
     // Dessiner la heatmap
     for (int y = 0; y < gridHeight; y++) {
         for (int x = 0; x < gridWidth; x++) {
@@ -167,6 +166,11 @@ int displaying(std::vector<std::vector<double>>* powerGrid){
 
     SDL_RenderPresent(renderer);
 
+    // Variables pour suivre le dernier clic
+    int lastClickX = -1;
+    int lastClickY = -1;
+    bool showClickInfo = false;
+    SDL_Rect infoBox = {10, 10, 180, 60};
     
     // Attendre que l'utilisateur ferme la fenêtre
     bool running = true;
@@ -182,6 +186,62 @@ int displaying(std::vector<std::vector<double>>* powerGrid){
                     running = false;
                 }
             }
+            else if (event.type == SDL_MOUSEBUTTONDOWN) {
+                if (event.button.button == SDL_BUTTON_LEFT) {
+                    // Récupérer les coordonnées du clic
+                    lastClickX = event.button.x / cellSize;  // Convertir en coordonnées de la grille
+                    lastClickY = event.button.y / cellSize;
+                    
+                    // Vérifier que les coordonnées sont dans la grille
+                    if (lastClickX >= 0 && lastClickX < gridWidth && 
+                        lastClickY >= 0 && lastClickY < gridHeight) {
+                        
+                        double signalPower = (*powerGrid)[lastClickY][lastClickX];
+                        
+                        std::cout << "Clic a la position: (" << lastClickX << ", " 
+                                  << lastClickY << ")" << std::endl;
+                        std::cout << "Puissance du signal: " << signalPower << " dBm" << std::endl;
+                        
+                        showClickInfo = true;
+                        
+                        // Mettre à jour l'affichage pour montrer l'info du clic
+                        // Redessiner la heatmap
+                        for (int y = 0; y < gridHeight; y++) {
+                            for (int x = 0; x < gridWidth; x++) {
+                                double val = (*powerGrid)[y][x];
+                                SDL_Color color;
+                                if (val == -555) {
+                                    color = {0, 0, 0, 255}; // noir
+                                } else {
+                                    color = dBmToColor(val, minPower, maxPower);
+                                }
+                                SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+                                
+                                SDL_Rect rect = {
+                                    x * cellSize,
+                                    y * cellSize,
+                                    cellSize,
+                                    cellSize
+                                };
+                                
+                                SDL_RenderFillRect(renderer, &rect);
+                            }
+                        }
+                        
+                        // Dessiner un marqueur sur la position du clic
+                        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // blanc
+                        SDL_Rect marker = {
+                            lastClickX * cellSize - 2,
+                            lastClickY * cellSize - 2,
+                            5, 
+                            5
+                        };
+                        SDL_RenderFillRect(renderer, &marker);
+                        
+                        SDL_RenderPresent(renderer);
+                    }
+                }
+            }
         }
     }
     
@@ -194,8 +254,3 @@ int displaying(std::vector<std::vector<double>>* powerGrid){
 
     return 0;
 }
-
-// int main(int argc, char* argv[]) {
-
-//     return 0;
-// }
