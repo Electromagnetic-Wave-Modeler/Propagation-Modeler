@@ -19,7 +19,7 @@
 
 
 int main() {
-    Room room(920, 680); // Résolution Full HD
+    Room room(1920, 1080); // Résolution Full HD
 
     // Ajout d'un émetteur Wi-Fi
     room.addEmitter(Emitter(150, 150, -30, 2.4e9)); // -30 dBm, 2.4 GHz
@@ -32,7 +32,7 @@ int main() {
     room.addObstacle(Obstacle(50, 50, 250, 50, 5, 3)); // Mur horizontal, épaisseur 5, 8 dB d'atténuation
 
     // Ajout d'un mur rectangulaire
-    room.addObstacle(Obstacle(400, 450, 600, 650, 0, 10));  // Mur rectangulaire, 10 dB d'atténuation
+    room.addObstacle(Obstacle(400, 450, 600, 650, 10, 10));  // Mur rectangulaire, 10 dB d'atténuation
 
     // Ajout d'un mur circulaire
     room.addObstacle(Obstacle(200, 300, 15, 5));    // Mur circulaire, 5 dB d'atténuation
