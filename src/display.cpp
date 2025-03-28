@@ -92,7 +92,7 @@ int displaying(std::vector<std::vector<double>>* powerGrid){
     
     for (const auto& row : *powerGrid) {
         for (double val : row) {
-            if (!std::isnan(val)) {
+            if (!std::isnan(val) && val != -555) {
                 minPower = std::min(minPower, val);
                 maxPower = std::max(maxPower, val);
             }
