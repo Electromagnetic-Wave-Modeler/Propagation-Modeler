@@ -8,6 +8,7 @@
 #include <limits>
 #include <cmath>
 #include <cstdlib>
+#include <utility> // Construire et gérer des paires d’objets
 
 #include "headers/emitter.hpp"
 #include "headers/obstacle.hpp"
@@ -44,11 +45,13 @@ int main() {
     room.markObstaclesOnPowerMap();
     
     // Export en CSV
-    room.exportToCSV("heatmap.csv");
+    // room.exportToCSV("heatmap.csv");
 
+    std::cout << "TEST2ffs" << std::endl;
     std::cout << "Done!" << std::endl;
 
     displaying(&room.powerMap);
+
 
     // Libération de la mémoire (nécessaire car vous utilisez des pointeurs)
     for (auto obstacle : room.obstacles) {

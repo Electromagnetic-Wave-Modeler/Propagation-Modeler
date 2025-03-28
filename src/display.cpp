@@ -144,9 +144,18 @@ int displaying(std::vector<std::vector<double>>* powerGrid){
     // Dessiner la heatmap
     for (int y = 0; y < gridHeight; y++) {
         for (int x = 0; x < gridWidth; x++) {
-            SDL_Color color = dBmToColor((*powerGrid)[y][x], minPower, maxPower);
-            SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+            double power = (*powerGrid)[y][x];
+            SDL_Color color;
             
+            if (power == -555) {
+                // Couleur noire pour les obstacles et les bords
+                color = {0, 0, 0, 255};
+            } else {
+                // Pour les valeurs normales, utiliser le dégradé
+                color = dBmToColor(power, minPower, maxPower);
+            }
+            SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+
             SDL_Rect rect = {
                 x * cellSize,
                 y * cellSize,
@@ -157,7 +166,6 @@ int displaying(std::vector<std::vector<double>>* powerGrid){
             SDL_RenderFillRect(renderer, &rect);
         }
     }
-
     SDL_RenderPresent(renderer);
 
     
