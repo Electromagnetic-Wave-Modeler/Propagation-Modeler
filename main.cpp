@@ -49,7 +49,7 @@ int main() {
 
     std::cout << "Done!" << std::endl;
 
-    displaying(&room.powerMap);
+    displaying(&room);
 
     return 0;
 }

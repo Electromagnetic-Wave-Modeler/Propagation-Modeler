@@ -9,6 +9,7 @@
 #include <cmath>
 
 #include "../headers/display.hpp"
+#include "../headers/room.hpp"
 
 // Fonction pour charger les données de puissance WiFi depuis un CSV
 std::vector<std::vector<double>> loadCSV(const std::string& filename) {
@@ -71,26 +72,26 @@ SDL_Color dBmToColor(double power, double min_power, double max_power) {
     return color;
 }
 
-int displaying(std::vector<std::vector<double>>* powerGrid){
+int displaying(Room* room) {
     // const std::string csvFile = "heatmap.csv";
     const int cellSize = 1;  // Taille du carré en pixels
     
     // Charger les données
-    // std::vector<std::vector<double>> powerGrid = room.powerMap;//loadCSV(csvFile);
+    // std::vector<std::vector<double>> powerMap = room.powerMap;//loadCSV(csvFile);
     
-    if ((*powerGrid).empty()) {
+    if ((*room).powerMap.empty()) {
         std::cerr << "Aucune donnee n'a ete chargee depuis le fichier CSV" << std::endl;
         return 1;
     }
     
-    int gridHeight = powerGrid->size();
-    int gridWidth = (*powerGrid)[0].size();
+    int gridHeight = (*room).powerMap.size();
+    int gridWidth = (*room).powerMap[0].size();
     
     // Trouver les valeurs min et max
     double minPower = std::numeric_limits<double>::max();
     double maxPower = std::numeric_limits<double>::lowest();
     
-    for (const auto& row : *powerGrid) {
+    for (const auto& row : (*room).powerMap) {
         for (double val : row) {
             if (!std::isnan(val) && val != -555) {
                 minPower = std::min(minPower, val);
@@ -102,7 +103,7 @@ int displaying(std::vector<std::vector<double>>* powerGrid){
     std::cout << "Puissance min: " << minPower << " dBm, max: " << maxPower << " dBm" << std::endl;
     
     // Remplacer les NaN par la valeur minimale
-    for (auto& row : *powerGrid) {
+    for (auto& row : (*room).powerMap) {
         for (auto& val : row) {
             if (std::isnan(val)) {
                 val = minPower;
@@ -143,8 +144,8 @@ int displaying(std::vector<std::vector<double>>* powerGrid){
     // Dessiner la heatmap
     for (int y = 0; y < gridHeight; y++) {
         for (int x = 0; x < gridWidth; x++) {
-            //SDL_Color color = dBmToColor((*powerGrid)[y][x], minPower, maxPower);
-            double val = (*powerGrid)[y][x];
+            //SDL_Color color = dBmToColor((*powerMap)[y][x], minPower, maxPower);
+            double val = (*room).powerMap[y][x];
             SDL_Color color;
             if (val == -555) {
                 color = {0, 0, 0, 255}; // noir
@@ -196,7 +197,7 @@ int displaying(std::vector<std::vector<double>>* powerGrid){
                     if (lastClickX >= 0 && lastClickX < gridWidth && 
                         lastClickY >= 0 && lastClickY < gridHeight) {
                         
-                        double signalPower = (*powerGrid)[lastClickY][lastClickX];
+                        double signalPower = (*room).powerMap[lastClickY][lastClickX];
                         
                         std::cout << "Clic a la position: (" << lastClickX << ", " 
                                   << lastClickY << ")" << std::endl;
@@ -208,7 +209,7 @@ int displaying(std::vector<std::vector<double>>* powerGrid){
                         // Redessiner la heatmap
                         for (int y = 0; y < gridHeight; y++) {
                             for (int x = 0; x < gridWidth; x++) {
-                                double val = (*powerGrid)[y][x];
+                                double val = (*room).powerMap[y][x];
                                 SDL_Color color;
                                 if (val == -555) {
                                     color = {0, 0, 0, 255}; // noir
