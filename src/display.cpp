@@ -10,6 +10,7 @@
 
 #include "../headers/display.hpp"
 #include "../headers/room.hpp"
+#include "../headers/emitter.hpp"
 
 // Fonction pour charger les données de puissance WiFi depuis un CSV
 std::vector<std::vector<double>> loadCSV(const std::string& filename) {
@@ -176,6 +177,8 @@ int displaying(Room* room) {
     // Attendre que l'utilisateur ferme la fenêtre
     bool running = true;
     SDL_Event event;
+    Emitter* selectedEmitter = new Emitter(0, 0, 0, 0); // Émetteur sélectionné 
+    bool emitterSelected = false;
     
     while (running) {
         while (SDL_PollEvent(&event)) {
@@ -204,6 +207,43 @@ int displaying(Room* room) {
                         std::cout << "Puissance du signal: " << signalPower << " dBm" << std::endl;
                         
                         showClickInfo = true;
+                        
+                        if(emitterSelected){
+                            // Déplacer l'émetteur à la nouvelle position
+                            (*selectedEmitter).x = lastClickX;
+                            (*selectedEmitter).y = lastClickY;
+
+                            std::cout << "Emetteur deplace a la position: (" << (*selectedEmitter).getX() << ", " 
+                                      << (*selectedEmitter).getY() << ")" << std::endl;
+                            
+                            // Mettre à jour la carte de puissance
+                            (*room).computeSignalMap(); // Recalculer la carte de puissance
+                            (*room).markObstaclesOnPowerMap();
+                            
+                            emitterSelected = false; // Réinitialiser l'état de sélection
+                            showClickInfo = true;
+                        } 
+                        else {
+                            // Vérifier si le clic est sur un émetteur
+                            bool foundEmitter = false;
+                            for (auto& emitter : (*room).emitters) {
+                                // Correction de la condition
+                                if ((emitter.getX() - 30 < lastClickX) && (emitter.getX() + 30 > lastClickX) && 
+                                    (emitter.getY() - 30 < lastClickY) && (emitter.getY() + 30 > lastClickY)) {
+                                    selectedEmitter = &emitter;
+                                    emitterSelected = true;
+                                    foundEmitter = true;
+                                    std::cout << "Emetteur selectionne a la position: (" << (*selectedEmitter).getX() << ", " 
+                                              << (*selectedEmitter).getY() << ")" << std::endl;
+                                    break;
+                                }
+                            }
+                            
+                            // Si on n'a pas trouvé d'émetteur, affiche simplement les infos
+                            if (!foundEmitter) {
+                                showClickInfo = true;
+                            }
+                        }
                         
                         // Mettre à jour l'affichage pour montrer l'info du clic
                         // Redessiner la heatmap
