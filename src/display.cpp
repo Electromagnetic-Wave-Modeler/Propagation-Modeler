@@ -12,6 +12,9 @@
 #include "../headers/room.hpp"
 #include "../headers/emitter.hpp"
 
+#define CELL_SIZE 1 // Taille de la cellule de la grille
+#define CLICK_THRESHOLD 30 // Seuil de distance pour détecter un clic sur un émetteur
+
 // Fonction pour charger les données de puissance WiFi depuis un CSV
 std::vector<std::vector<double>> loadCSV(const std::string& filename) {
     std::vector<std::vector<double>> grid;
@@ -73,15 +76,9 @@ SDL_Color dBmToColor(double power, double min_power, double max_power) {
     return color;
 }
 
-int displaying(Room* room) {
-    // const std::string csvFile = "heatmap.csv";
-    const int cellSize = 1;  // Taille du carré en pixels
-    
-    // Charger les données
-    // std::vector<std::vector<double>> powerMap = room.powerMap;//loadCSV(csvFile);
-    
+int handlepowerMap(Room* room, SDL_Renderer* renderer){
     if ((*room).powerMap.empty()) {
-        std::cerr << "Aucune donnee n'a ete chargee depuis le fichier CSV" << std::endl;
+        std::cerr << "Aucune donnee n'a ete chargee" << std::endl;
         return 1;
     }
     
@@ -102,7 +99,7 @@ int displaying(Room* room) {
     }
     
     std::cout << "Puissance min: " << minPower << " dBm, max: " << maxPower << " dBm" << std::endl;
-    
+
     // Remplacer les NaN par la valeur minimale
     for (auto& row : (*room).powerMap) {
         for (auto& val : row) {
@@ -111,6 +108,37 @@ int displaying(Room* room) {
             }
         }
     }
+
+    // Dessiner la heatmap
+    for (int y = 0; y < gridHeight; y++) {
+        for (int x = 0; x < gridWidth; x++) {
+            //SDL_Color color = dBmToColor((*powerMap)[y][x], minPower, maxPower);
+            double val = (*room).powerMap[y][x];
+            SDL_Color color;
+            if (val == -555) {
+                color = {0, 0, 0, 255}; // noir
+            } else {
+                color = dBmToColor(val, minPower, maxPower);
+            }
+            SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+            
+            SDL_Rect rect = {
+                x * CELL_SIZE,
+                y * CELL_SIZE,
+                CELL_SIZE,
+                CELL_SIZE
+            };
+            
+            SDL_RenderFillRect(renderer, &rect);
+        }
+    }
+    return 0;
+}
+
+int displaying(Room* room) {
+
+    int gridHeight = (*room).powerMap.size();
+    int gridWidth = (*room).powerMap[0].size();
     
     // Initialiser SDL
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -122,7 +150,7 @@ int displaying(Room* room) {
     SDL_Window* window = SDL_CreateWindow(
         "Carte thermique du signal WiFi (dBm)",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        gridWidth * cellSize, gridHeight * cellSize,
+        gridWidth * CELL_SIZE, gridHeight * CELL_SIZE,
         SDL_WINDOW_SHOWN
     );
     
@@ -141,30 +169,8 @@ int displaying(Room* room) {
         SDL_Quit();
         return 1;
     }
-    
-    // Dessiner la heatmap
-    for (int y = 0; y < gridHeight; y++) {
-        for (int x = 0; x < gridWidth; x++) {
-            //SDL_Color color = dBmToColor((*powerMap)[y][x], minPower, maxPower);
-            double val = (*room).powerMap[y][x];
-            SDL_Color color;
-            if (val == -555) {
-                color = {0, 0, 0, 255}; // noir
-            } else {
-                color = dBmToColor(val, minPower, maxPower);
-            }
-            SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-            
-            SDL_Rect rect = {
-                x * cellSize,
-                y * cellSize,
-                cellSize,
-                cellSize
-            };
-            
-            SDL_RenderFillRect(renderer, &rect);
-        }
-    }
+
+    handlepowerMap(room, renderer); 
 
     SDL_RenderPresent(renderer);
 
@@ -173,14 +179,29 @@ int displaying(Room* room) {
     int lastClickY = -1;
     bool showClickInfo = false;
     SDL_Rect infoBox = {10, 10, 180, 60};
+
+    // Bouton mur ///////////////////////////
+    bool addingWall = false;        // Mode d'ajout de mur
+    int wallStartX = -1;            // Premier point du mur (X)
+    int wallStartY = -1;            // Premier point du mur (Y)
+    bool waitingForSecondPoint = false; // En attente du second point
     
     // Attendre que l'utilisateur ferme la fenêtre
     bool running = true;
     SDL_Event event;
     Emitter* selectedEmitter = new Emitter(0, 0, 0, 0); // Émetteur sélectionné 
     bool emitterSelected = false;
+
+    // Définition du bouton
+    SDL_Rect addWallButton = {10, gridHeight * CELL_SIZE - 40, 120, 30}; // Position en bas à gauche
+    bool buttonHovered = false;
     
     while (running) {
+    // Récupérer la position de la souris pour le survol du bouton
+    int mouseX, mouseY;
+    SDL_GetMouseState(&mouseX, &mouseY);
+    buttonHovered = (mouseX >= addWallButton.x && mouseX <= addWallButton.x + addWallButton.w &&
+                     mouseY >= addWallButton.y && mouseY <= addWallButton.y + addWallButton.h);       
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 running = false;
@@ -192,94 +213,167 @@ int displaying(Room* room) {
             }
             else if (event.type == SDL_MOUSEBUTTONDOWN) {
                 if (event.button.button == SDL_BUTTON_LEFT) {
-                    // Récupérer les coordonnées du clic
-                    lastClickX = event.button.x / cellSize;  // Convertir en coordonnées de la grille
-                    lastClickY = event.button.y / cellSize;
-                    
-                    // Vérifier que les coordonnées sont dans la grille
-                    if (lastClickX >= 0 && lastClickX < gridWidth && 
-                        lastClickY >= 0 && lastClickY < gridHeight) {
+                        // Vérifier si le clic est sur le bouton
+                    if (mouseX >= addWallButton.x && mouseX <= addWallButton.x + addWallButton.w &&
+                        mouseY >= addWallButton.y && mouseY <= addWallButton.y + addWallButton.h) {
                         
-                        double signalPower = (*room).powerMap[lastClickY][lastClickX];
+                        addingWall = true;
+                        waitingForSecondPoint = false;
+                        wallStartX = -1;
+                        wallStartY = -1;
+                        std::cout << "Mode ajout de mur activé. Cliquez pour définir le premier point." << std::endl;
+                    }
+                    // Sinon, traiter le clic en fonction du mode actuel
+                    else if (addingWall) {
+                        // Récupérer les coordonnées du clic
+                        int clickX = event.button.x / CELL_SIZE;
+                        int clickY = event.button.y / CELL_SIZE;
                         
-                        std::cout << "Clic a la position: (" << lastClickX << ", " 
-                                  << lastClickY << ")" << std::endl;
-                        std::cout << "Puissance du signal: " << signalPower << " dBm" << std::endl;
-                        
-                        showClickInfo = true;
-                        
-                        if(emitterSelected){
-                            // Déplacer l'émetteur à la nouvelle position
-                            (*selectedEmitter).x = lastClickX;
-                            (*selectedEmitter).y = lastClickY;
-
-                            std::cout << "Emetteur deplace a la position: (" << (*selectedEmitter).getX() << ", " 
-                                      << (*selectedEmitter).getY() << ")" << std::endl;
+                        // Vérifier que les coordonnées sont dans la grille
+                        if (clickX >= 0 && clickX < gridWidth && 
+                            clickY >= 0 && clickY < gridHeight) {
                             
-                            // Mettre à jour la carte de puissance
-                            (*room).computeSignalMap(); // Recalculer la carte de puissance
-                            (*room).markObstaclesOnPowerMap();
+                            if (!waitingForSecondPoint) {
+                                // Premier point du mur
+                                wallStartX = clickX;
+                                wallStartY = clickY;
+                                waitingForSecondPoint = true;
+                                std::cout << "Premier point défini: (" << wallStartX << ", " << wallStartY 
+                                        << "). Cliquez pour définir le second point." << std::endl;
+                            } else {
+                                // Deuxième point du mur
+                                int wallEndX = clickX;
+                                int wallEndY = clickY;
+                                
+                                // Ajouter le mur
+                                (*room).addObstacle(Obstacle(wallStartX, wallStartY, wallEndX, wallEndY, 10, 5));
+                                std::cout << "Mur ajouté de (" << wallStartX << ", " << wallStartY << ") à (" 
+                                            << wallEndX << ", " << wallEndY << ")" << std::endl;
+                                
+                                // Recalculer la carte
+                                (*room).computeSignalMap();
+                                (*room).markObstaclesOnPowerMap();
+                                
+                                // Réinitialiser le mode d'ajout de mur
+                                addingWall = false;
+                                waitingForSecondPoint = false;
+                                
+                                // // Trouver les nouvelles valeurs min et max après recalcul
+                                // minPower = std::numeric_limits<double>::max();
+                                // maxPower = std::numeric_limits<double>::lowest();
+                                
+                                // for (const auto& row : (*room).powerMap) {
+                                //     for (double val : row) {
+                                //         if (!std::isnan(val) && val != -555) {
+                                //             minPower = std::min(minPower, val);
+                                //             maxPower = std::max(maxPower, val);
+                                //         }
+                                //     }
+                                // }
+                                handlepowerMap(room, renderer); 
+                            }
+                        }
+                    }
+                    else {
+                        // Récupérer les coordonnées du clic
+                        lastClickX = event.button.x / CELL_SIZE;  // Convertir en coordonnées de la grille
+                        lastClickY = event.button.y / CELL_SIZE;
+                        
+                        // Vérifier que les coordonnées sont dans la grille
+                        if (lastClickX >= 0 && lastClickX < gridWidth && 
+                            lastClickY >= 0 && lastClickY < gridHeight) {
                             
-                            emitterSelected = false; // Réinitialiser l'état de sélection
+                            double signalPower = (*room).powerMap[lastClickY][lastClickX];
+                            
+                            std::cout << "Clic a la position: (" << lastClickX << ", " 
+                                    << lastClickY << ")" << std::endl;
+                            std::cout << "Puissance du signal: " << signalPower << " dBm" << std::endl;
+                            
                             showClickInfo = true;
-                        } 
-                        else {
-                            // Vérifier si le clic est sur un émetteur
-                            bool foundEmitter = false;
-                            for (auto& emitter : (*room).emitters) {
-                                // Correction de la condition
-                                if ((emitter.getX() - 30 < lastClickX) && (emitter.getX() + 30 > lastClickX) && 
-                                    (emitter.getY() - 30 < lastClickY) && (emitter.getY() + 30 > lastClickY)) {
-                                    selectedEmitter = &emitter;
-                                    emitterSelected = true;
-                                    foundEmitter = true;
-                                    std::cout << "Emetteur selectionne a la position: (" << (*selectedEmitter).getX() << ", " 
-                                              << (*selectedEmitter).getY() << ")" << std::endl;
-                                    break;
+                            
+                            if(emitterSelected){
+                                // Déplacer l'émetteur à la nouvelle position
+                                (*selectedEmitter).x = lastClickX;
+                                (*selectedEmitter).y = lastClickY;
+
+                                std::cout << "Emetteur deplace a la position: (" << (*selectedEmitter).getX() << ", " 
+                                        << (*selectedEmitter).getY() << ")" << std::endl;
+                                
+                                // Mettre à jour la carte de puissance
+                                (*room).computeSignalMap(); // Recalculer la carte de puissance
+                                (*room).markObstaclesOnPowerMap();
+                                
+                                emitterSelected = false; // Réinitialiser l'état de sélection
+                                showClickInfo = true;
+                            } 
+                            else {
+                                // Vérifier si le clic est sur un émetteur
+                                bool foundEmitter = false;
+                                for (auto& emitter : (*room).emitters) {
+                                    // Correction de la condition
+                                    if ((emitter.getX() - CLICK_THRESHOLD < lastClickX) && (emitter.getX() + CLICK_THRESHOLD > lastClickX) && 
+                                        (emitter.getY() - CLICK_THRESHOLD < lastClickY) && (emitter.getY() + CLICK_THRESHOLD > lastClickY)) {
+                                        selectedEmitter = &emitter;
+                                        emitterSelected = true;
+                                        foundEmitter = true;
+                                        std::cout << "Emetteur selectionne a la position: (" << (*selectedEmitter).getX() << ", " 
+                                                << (*selectedEmitter).getY() << ")" << std::endl;
+                                        break;
+                                    }
+                                }
+                                
+                                // Si on n'a pas trouvé d'émetteur, affiche simplement les infos
+                                if (!foundEmitter) {
+                                    showClickInfo = true;
                                 }
                             }
                             
-                            // Si on n'a pas trouvé d'émetteur, affiche simplement les infos
-                            if (!foundEmitter) {
-                                showClickInfo = true;
+                            handlepowerMap(room, renderer); 
+
+                            // Dessiner un marqueur sur la position du clic
+                            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // blanc
+                            SDL_Rect marker = {
+                                lastClickX * CELL_SIZE - 2,
+                                lastClickY * CELL_SIZE - 2,
+                                5, 
+                                5
+                            };
+                            SDL_RenderFillRect(renderer, &marker);
+//////////////////////////////////////////////////////////////////////////
+                            // Dessiner le bouton
+                            if (buttonHovered) {
+                                SDL_SetRenderDrawColor(renderer, 100, 150, 255, 255); // Bleu plus clair en survol
+                            } else {
+                                SDL_SetRenderDrawColor(renderer, 70, 130, 230, 255); // Bleu normal
                             }
+                            SDL_RenderFillRect(renderer, &addWallButton);
+                            
+                            // Ajout du texte pour le bouton (sans SDL_ttf)
+                            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // Texte blanc
+                            
+                            // Dessiner "ADD WALL" avec des rectangles (méthode simplifiée)
+                            int textX = addWallButton.x + 20;
+                            int textY = addWallButton.y + 10;
+                            
+                            // A
+                            SDL_Rect textRect = {textX, textY, 3, 10};
+                            SDL_RenderFillRect(renderer, &textRect);
+                            textRect = {textX+3, textY, 3, 3};
+                            SDL_RenderFillRect(renderer, &textRect);
+                            textRect = {textX+6, textY, 3, 10};
+                            SDL_RenderFillRect(renderer, &textRect);
+                            textRect = {textX+3, textY+5, 3, 1};
+                            SDL_RenderFillRect(renderer, &textRect);
+                            
+                            // + pour simuler le reste du texte
+                            textX += 12;
+                            textRect = {textX, textY+5, 6, 2};
+                            SDL_RenderFillRect(renderer, &textRect);
+                            textRect = {textX+2, textY+2, 2, 6};
+                            SDL_RenderFillRect(renderer, &textRect);
+//////////////////////////////////////////////////////////                       
+                            SDL_RenderPresent(renderer);
                         }
-                        
-                        // Mettre à jour l'affichage pour montrer l'info du clic
-                        // Redessiner la heatmap
-                        for (int y = 0; y < gridHeight; y++) {
-                            for (int x = 0; x < gridWidth; x++) {
-                                double val = (*room).powerMap[y][x];
-                                SDL_Color color;
-                                if (val == -555) {
-                                    color = {0, 0, 0, 255}; // noir
-                                } else {
-                                    color = dBmToColor(val, minPower, maxPower);
-                                }
-                                SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-                                
-                                SDL_Rect rect = {
-                                    x * cellSize,
-                                    y * cellSize,
-                                    cellSize,
-                                    cellSize
-                                };
-                                
-                                SDL_RenderFillRect(renderer, &rect);
-                            }
-                        }
-                        
-                        // Dessiner un marqueur sur la position du clic
-                        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // blanc
-                        SDL_Rect marker = {
-                            lastClickX * cellSize - 2,
-                            lastClickY * cellSize - 2,
-                            5, 
-                            5
-                        };
-                        SDL_RenderFillRect(renderer, &marker);
-                        
-                        SDL_RenderPresent(renderer);
                     }
                 }
             }

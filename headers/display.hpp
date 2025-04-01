@@ -12,4 +12,6 @@ SDL_Color dBmToColor(double power, double min_power, double max_power);
 
 int displaying(Room* room);
 
+int handlepowerMap(Room* room, SDL_Renderer* renderer);
+
 #endif // MYSDL_HPP

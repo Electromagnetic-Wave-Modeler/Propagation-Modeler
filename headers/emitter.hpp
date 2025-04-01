@@ -31,6 +31,7 @@ class Emitter {
         double getX() const { return x; }
         double getY() const { return y; }
         
+        
 };
 
 #endif // EMMITTER_HPP

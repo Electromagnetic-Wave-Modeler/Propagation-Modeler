@@ -126,6 +126,26 @@ public:
         std::cout << "Carte exportée vers " << filename << std::endl;
     }
 
+    bool deleteEmitter(double x, double y) {
+        for (auto it = emitters.begin(); it != emitters.end(); ++it) {
+            if (it->getX() == x && it->getY() == y) {
+                emitters.erase(it);
+                return true; // Émetteur supprimé
+            }
+        }
+        return false; // Émetteur non trouvé
+    }
+
+    bool deleteObstacle(double x1, double x2, double y1, double y2) {
+        for (auto it = obstacles.begin(); it != obstacles.end(); ++it) {
+            if ((*it).x1 == x1 && (*it).y1 == y1 && (*it).x2 == x2 && (*it).y2 == y2) {
+                obstacles.erase(it);
+                return true; // Obstacle supprimé
+            }
+        }
+        return false; // Obstacle non trouvé
+    }
+
 private:
     /**
      * Marque les bords de la salle comme zones obstacles
