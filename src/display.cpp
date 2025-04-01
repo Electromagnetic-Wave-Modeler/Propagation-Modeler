@@ -11,6 +11,7 @@
 #include "../headers/display.hpp"
 #include "../headers/room.hpp"
 #include "../headers/emitter.hpp"
+#include "../lib/SDL2_ttf/include/SDL_ttf.h"
 
 #define CELL_SIZE 1 // Taille de la cellule de la grille
 #define CLICK_THRESHOLD 30 // Seuil de distance pour détecter un clic sur un émetteur
@@ -135,7 +136,41 @@ int handlepowerMap(Room* room, SDL_Renderer* renderer){
     return 0;
 }
 
+SDL_Texture* renderText(SDL_Renderer* renderer, TTF_Font* font, const char* text, SDL_Color textColor) {
+    SDL_Surface* textSurface = TTF_RenderText_Blended(font, text, textColor);
+    if (!textSurface) {
+        std::cerr << "Impossible de créer la surface de texte: " << TTF_GetError() << std::endl;
+        return nullptr;
+    }
+
+    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+    SDL_FreeSurface(textSurface);
+    
+    if (!textTexture) {
+        std::cerr << "Impossible de créer la texture du texte: " << SDL_GetError() << std::endl;
+        return nullptr;
+    }
+    
+    return textTexture;
+}
+
 int displaying(Room* room) {
+
+    if (TTF_Init() != 0) {
+        std::cerr << "Erreur d'initialisation SDL_ttf: " << TTF_GetError() << std::endl;
+        SDL_Quit();
+        return 1;
+    }
+    
+    // Charger une police
+    TTF_Font* font = TTF_OpenFont("assets/fonts/DejaVuSans.ttf", 16); // Remplacez par le chemin de votre police
+    if (!font) {
+        std::cerr << "Erreur de chargement de police: " << TTF_GetError() << std::endl;
+        TTF_Quit();
+        SDL_Quit();
+        return 1;
+    }
+    
 
     int gridHeight = (*room).powerMap.size();
     int gridWidth = (*room).powerMap[0].size();
@@ -258,18 +293,7 @@ int displaying(Room* room) {
                                 addingWall = false;
                                 waitingForSecondPoint = false;
                                 
-                                // // Trouver les nouvelles valeurs min et max après recalcul
-                                // minPower = std::numeric_limits<double>::max();
-                                // maxPower = std::numeric_limits<double>::lowest();
-                                
-                                // for (const auto& row : (*room).powerMap) {
-                                //     for (double val : row) {
-                                //         if (!std::isnan(val) && val != -555) {
-                                //             minPower = std::min(minPower, val);
-                                //             maxPower = std::max(maxPower, val);
-                                //         }
-                                //     }
-                                // }
+                                // mise à jour de la power map
                                 handlepowerMap(room, renderer); 
                             }
                         }
@@ -339,7 +363,7 @@ int displaying(Room* room) {
                                 5
                             };
                             SDL_RenderFillRect(renderer, &marker);
-//////////////////////////////////////////////////////////////////////////
+
                             // Dessiner le bouton
                             if (buttonHovered) {
                                 SDL_SetRenderDrawColor(renderer, 100, 150, 255, 255); // Bleu plus clair en survol
@@ -348,30 +372,28 @@ int displaying(Room* room) {
                             }
                             SDL_RenderFillRect(renderer, &addWallButton);
                             
-                            // Ajout du texte pour le bouton (sans SDL_ttf)
-                            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // Texte blanc
-                            
-                            // Dessiner "ADD WALL" avec des rectangles (méthode simplifiée)
-                            int textX = addWallButton.x + 20;
-                            int textY = addWallButton.y + 10;
-                            
-                            // A
-                            SDL_Rect textRect = {textX, textY, 3, 10};
-                            SDL_RenderFillRect(renderer, &textRect);
-                            textRect = {textX+3, textY, 3, 3};
-                            SDL_RenderFillRect(renderer, &textRect);
-                            textRect = {textX+6, textY, 3, 10};
-                            SDL_RenderFillRect(renderer, &textRect);
-                            textRect = {textX+3, textY+5, 3, 1};
-                            SDL_RenderFillRect(renderer, &textRect);
-                            
-                            // + pour simuler le reste du texte
-                            textX += 12;
-                            textRect = {textX, textY+5, 6, 2};
-                            SDL_RenderFillRect(renderer, &textRect);
-                            textRect = {textX+2, textY+2, 2, 6};
-                            SDL_RenderFillRect(renderer, &textRect);
-//////////////////////////////////////////////////////////                       
+                            SDL_Color textColor = {255, 255, 255, 255}; // Blanc
+                            SDL_Texture* buttonTextTexture = renderText(renderer, font, "ADD WALL", textColor);
+
+                            if (buttonTextTexture) {
+                                int textWidth, textHeight;
+                                SDL_QueryTexture(buttonTextTexture, nullptr, nullptr, &textWidth, &textHeight);
+                                
+                                // Centrer le texte sur le bouton
+                                SDL_Rect textRect = {
+                                    addWallButton.x + (addWallButton.w - textWidth) / 2,
+                                    addWallButton.y + (addWallButton.h - textHeight) / 2,
+                                    textWidth,
+                                    textHeight
+                                };
+                                
+                                SDL_RenderCopy(renderer, buttonTextTexture, nullptr, &textRect);
+                                
+                                // Libérer la texture après usage
+                                SDL_DestroyTexture(buttonTextTexture);
+                            }
+
+
                             SDL_RenderPresent(renderer);
                         }
                     }

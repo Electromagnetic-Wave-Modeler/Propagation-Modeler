@@ -44,7 +44,7 @@ int main() {
     // Marquer les obstacles sur la heatmap
     room.markObstaclesOnPowerMap();
     
-    // Export en CSV
+    // Export en CSV pour vérification des valeurs
     //room.exportToCSV("heatmap.csv");
 
     std::cout << "Done!" << std::endl;
@@ -55,8 +55,6 @@ int main() {
     for (auto obstacle : room.obstacles) {
         delete obstacle;
     }
-
-    //pour pull request
 
     return 0;
 }
