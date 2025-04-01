@@ -19,11 +19,10 @@
 
 
 int main() {
-    Room room(1920, 1080); // Résolution Full HD
+    Room room(920, 680); // Résolution Full HD
 
     // Ajout d'émetteurs Wi-Fi
-    room.addEmitter(Emitter(150, 150, -30, 2.4e9)); // --30 dBm, 2.4 GHz
-    room.addEmitter(Emitter(700, 500, -28, 2.4e9)); // -28 dBm, 2.4 GHz
+    room.addEmitter(Emitter(150, 150, -30, 2.4e9)); // -30 dBm, 2.4 GHz
     room.addEmitter(Emitter(700, 500, -28, 2.4e9)); // -28 dBm, 2.4 GHz
 
     // Ajout d'un mur vertical avec épaisseur (utilisation de MurDroit)
@@ -39,24 +38,14 @@ int main() {
     room.addObstacle(new MeubleRond(200, 300, 15, 5));    // Meuble rond, 5 dB d'atténuation
     room.addObstacle(new MeubleRond(600, 200, 30, 10));   // Meuble rond, 10 dB d'atténuation
 
-    // Ajout d'un mur rectangulaire
-    room.addObstacle(Obstacle(400, 450, 600, 650, 10, 10));  // Mur rectangulaire, 10 dB d'atténuation
-
-    // Ajout d'un mur circulaire
-    room.addObstacle(Obstacle(200, 300, 15, 5));    // Mur circulaire, 5 dB d'atténuation
-    room.addObstacle(Obstacle(600, 200, 30, 10));
-
     // Calcul de la puissance en chaque point
     room.computeSignalMap();
 
     // Marquer les obstacles sur la heatmap
     room.markObstaclesOnPowerMap();
     
-    // Marquer les obstacles sur la heatmap
-    room.markObstaclesOnPowerMap();
-    
     // Export en CSV
-    //room.exportToCSV("heatmap.csv");
+    // room.exportToCSV("heatmap.csv");
 
     std::cout << "TESTEncaps" << std::endl;
     std::cout << "Done!" << std::endl;

@@ -331,10 +331,9 @@ class MurDroit:public Mur{
         // Optimisation: intersection entre ligne (émetteur-point) et obstacle avec épaisseur
         bool isBlocking(double x, double y, double emitter_x, double emitter_y) const override {
             // Vérification rapide: si l'émetteur ou le point est à l'intérieur de l'obstacle
-            if (isPointInside(x, y) || isPointInside(emitter_x, emitter_y)) {
+            if (isPointInside(x, y) || isPointInside(emitter_x, emitter_y))
                 return true;
             else return false;
-            }
 
             // Cas vertical optimisé (avec épaisseur)
             if (std::abs(x1 - x2) < EPSILON) {
