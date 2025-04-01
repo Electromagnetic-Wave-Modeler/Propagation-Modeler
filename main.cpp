@@ -47,7 +47,7 @@ int main() {
     // Export en CSV
     // room.exportToCSV("heatmap.csv");
 
-    std::cout << "TEST2ffs" << std::endl;
+    std::cout << "TESTEncaps" << std::endl;
     std::cout << "Done!" << std::endl;
 
     displaying(&room.powerMap);
