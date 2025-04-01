@@ -246,7 +246,7 @@ int displaying(Room* room) {
                                 int wallEndY = clickY;
                                 
                                 // Ajouter le mur
-                                (*room).addObstacle(Obstacle(wallStartX, wallStartY, wallEndX, wallEndY, 10, 5));
+                                (*room).addObstacle(new Mur(wallStartX, wallStartY, wallEndX, wallEndY, 10, 5));
                                 std::cout << "Mur ajouté de (" << wallStartX << ", " << wallStartY << ") à (" 
                                             << wallEndX << ", " << wallEndY << ")" << std::endl;
                                 
