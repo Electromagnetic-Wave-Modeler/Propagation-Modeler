@@ -29,14 +29,14 @@ int main() {
     room.addObstacle(new MurDroit(100, 200, 100, 300, 10, 5)); // Mur vertical, épaisseur 10, 5 dB d'atténuation
 
     // Ajout d'un mur horizontal avec épaisseur (utilisation de MurDroit)
-    room.addObstacle(new MurDroit(50, 50, 250, 50, 5, 3)); // Mur horizontal, épaisseur 5, 3 dB d'atténuation
+    room.addObstacle(new MurDroit(50, 50, 250, 50, 15, 20)); // Mur horizontal, épaisseur 5, 3 dB d'atténuation
 
     // Ajout d'un mur rectangulaire (utilisation de la classe Mur générique)
     room.addObstacle(new Mur(400, 450, 600, 650, 5, 10));  // Mur rectangulaire, 10 dB d'atténuation
 
-    // Ajout de meubles circulaires (utilisation de MeubleRond)
-    room.addObstacle(new MeubleRond(200, 300, 15, 5));    // Meuble rond, 5 dB d'atténuation
-    room.addObstacle(new MeubleRond(600, 200, 30, 10));   // Meuble rond, 10 dB d'atténuation
+    // Ajout de meubles circulaires (utilisation de obstacleCirculaire)
+    room.addObstacle(new obstacleCirculaire(200, 300, 15, 5));    // Meuble rond, 5 dB d'atténuation
+    room.addObstacle(new obstacleCirculaire(600, 200, 30, 10));   // Meuble rond, 10 dB d'atténuation
 
     // Calcul de la puissance en chaque point
     room.computeSignalMap();

@@ -1,9 +1,13 @@
 TARGET = dist/main
 
-SOURCES = main.cpp src/display.cpp
+SRC_FILES = $(wildcard src/*.cpp)
+SRC_FILES2 = $(wildcard src/obstacle/*.cpp)
+SOURCES = main.cpp $(SRC_FILES) $(SRC_FILES2)
 OBJS = ${SOURCES:.cpp=.o}
 SDL2_PATH = lib/SDL2
 SDL2_ttf_PATH = lib/SDL2_ttf
+
+
 
 all: $(TARGET) run
 
