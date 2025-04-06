@@ -59,9 +59,9 @@ public:
 
     void exportToCSV(const std::string& filename);
 
-    // bool deleteEmitter(double x, double y);
+    bool deleteEmitter(double x, double y);
 
-    // bool deleteObstacle(double x1, double y1, double x2, double y2);
+    bool deleteObstacle(double x1, double y1, double x2, double y2);
 
 private:
     /**

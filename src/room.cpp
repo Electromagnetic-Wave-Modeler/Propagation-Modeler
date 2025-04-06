@@ -78,49 +78,54 @@ void Room::exportToCSV(const std::string& filename) {
     std::cout << "Carte exportée vers " << filename << std::endl;
 }
 
-// bool Room::deleteEmitter(double x, double y) {
-//     for (auto it = emitters.begin(); it != emitters.end(); ++it) {
-//         if (it->getX() == x && it->getY() == y) {
-//             emitters.erase(it);
-//             return true; // Émetteur supprimé
-//         }
-//     }
-//     return false; // Émetteur non trouvé
-// }
+bool Room::deleteEmitter(double x, double y) {
+    for (auto it = emitters.begin(); it != emitters.end(); ++it) {
+        if (it->getX() == x && it->getY() == y) {
+            emitters.erase(it);
+            return true; // Émetteur supprimé
+        }
+    }
+    return false; // Émetteur non trouvé
+}
 
-// bool Room::deleteObstacle(double x1, double y1, double x2, double y2) {
-//     for (auto it = obstacles.begin(); it != obstacles.end(); ++it) {
-//         // Vérifier si l'obstacle est un Mur en utilisant le cast dynamique
-//         Mur* mur = dynamic_cast<Mur*>(*it);
+bool Room::deleteObstacle(double x1, double y1, double x2, double y2) {
+    for (auto it = obstacles.begin(); it != obstacles.end(); ++it) {
+        // Vérifier si l'obstacle est un Mur en utilisant le cast dynamique
+        Mur* mur = dynamic_cast<Mur*>(*it);
         
-//         // Si c'est un mur, vérifier ses coordonnées
-//         if (mur != nullptr && 
-//             std::abs(mur->x1 - x1) < 0.001 && 
-//             std::abs(mur->y1 - y1) < 0.001 && 
-//             std::abs(mur->x2 - x2) < 0.001 && 
-//             std::abs(mur->y2 - y2) < 0.001) {
+        // Si c'est un mur, vérifier ses coordonnées
+        if (mur != nullptr && 
+            std::abs(mur->getX1() - x1) < 0.001 && 
+            std::abs(mur->getY1() - y1) < 0.001 && 
+            std::abs(mur->getX2() - x2) < 0.001 && 
+            std::abs(mur->getY2() - y2) < 0.001) {
             
-//             obstacles.erase(it);
-//             return true; // Obstacle supprimé
-//         }
-//     }
-//     return false; // Obstacle non trouvé
-// }
+            obstacles.erase(it);
+            return true; // Obstacle supprimé
+        }
+    }
+    return false; // Obstacle non trouvé
+}
 
 void Room::markRoomBoundaries() {
     // Bords verticaux
     for (int y = 0; y < height; y++) {
         powerMap[y][0] = -555;        // Bord gauche
         powerMap[y][1] = -555;        // Zone de sécurité
+        powerMap[y][2] = -555;        // Zone de sécurité
         powerMap[y][width-1] = -555;  // Bord droit
         powerMap[y][width-2] = -555;  // Zone de sécurité
+        powerMap[y][width-3] = -555;  // Zone de sécurité
+
     }
 
     // Bords horizontaux
     for (int x = 0; x < width; x++) {
         powerMap[0][x] = -555;        // Bord supérieur
         powerMap[1][x] = -555;        // Zone de sécurité
+        powerMap[2][x] = -555;        // Zone de sécurité
         powerMap[height-1][x] = -555; // Bord inférieur
         powerMap[height-2][x] = -555;  // Zone de sécurité
+        powerMap[height-3][x] = -555;  // Zone de sécurité
     }
 }
