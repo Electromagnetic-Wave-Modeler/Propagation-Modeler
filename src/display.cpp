@@ -11,6 +11,7 @@
 #include "../headers/display.hpp"
 #include "../headers/room.hpp"
 #include "../headers/emitter.hpp"
+#include "../headers/obstacle.hpp"
 #include "../lib/SDL2_ttf/include/SDL_ttf.h"
 
 #define CELL_SIZE 1 // Taille de la cellule de la grille
@@ -230,6 +231,16 @@ int displaying(Room* room) {
     // Définition du bouton
     SDL_Rect addWallButton = {10, gridHeight * CELL_SIZE - 40, 120, 30}; // Position en bas à gauche
     bool buttonHovered = false;
+
+    //fenetre d'affichage des valeurs de puissance, en bas à droite
+    SDL_Rect powerInfoBox = {gridWidth * CELL_SIZE - 220, gridHeight * CELL_SIZE - 100, 210, 80};
+    SDL_Color powerInfoColor = {255, 255, 255, 255}; // Couleur blanche
+
+    //dessiner la zone d'information, en bas à droite, en blanc
+    SDL_SetRenderDrawColor(renderer, powerInfoColor.r, powerInfoColor.g, powerInfoColor.b, powerInfoColor.a);
+    SDL_RenderFillRect(renderer, &powerInfoBox);
+
+
     
     while (running) {
     // Récupérer la position de la souris pour le survol du bouton
@@ -248,7 +259,7 @@ int displaying(Room* room) {
             }
             else if (event.type == SDL_MOUSEBUTTONDOWN) {
                 if (event.button.button == SDL_BUTTON_LEFT) {
-                        // Vérifier si le clic est sur le bouton
+                        // Vérifier si le clic est sur le bouton d'ajout de mur
                     if (mouseX >= addWallButton.x && mouseX <= addWallButton.x + addWallButton.w &&
                         mouseY >= addWallButton.y && mouseY <= addWallButton.y + addWallButton.h) {
                         
@@ -312,6 +323,8 @@ int displaying(Room* room) {
                             std::cout << "Clic a la position: (" << lastClickX << ", " 
                                     << lastClickY << ")" << std::endl;
                             std::cout << "Puissance du signal: " << signalPower << " dBm" << std::endl;
+
+
                             
                             showClickInfo = true;
                             
@@ -393,6 +406,92 @@ int displaying(Room* room) {
                                 SDL_DestroyTexture(buttonTextTexture);
                             }
 
+                            // Afficher les informations de puissance dans un rectangle blanc en bas à droite
+                            if (showClickInfo) {
+                                // Dessiner le fond du rectangle d'information
+                                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // Blanc
+                                SDL_RenderFillRect(renderer, &powerInfoBox);
+                                
+                                // Dessiner un contour noir
+                                SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Noir
+                                SDL_RenderDrawRect(renderer, &powerInfoBox);
+                                
+                                // Préparer le texte d'information
+                                std::string signalInfo;
+                                char buffer[128];
+                                
+                                if (lastClickX >= 0 && lastClickX < gridWidth && lastClickY >= 0 && lastClickY < gridHeight) {
+                                    double signalPower = (*room).powerMap[lastClickY][lastClickX];
+                                    
+                                    // Formater le texte avec les informations de puissance
+                                    if (signalPower == -555) {
+                                        snprintf(buffer, sizeof(buffer), "Position: (%d, %d)\nObstacle", lastClickX, lastClickY);
+                                    } else {
+                                        snprintf(buffer, sizeof(buffer), "Position: (%d, %d)\nPuissance: %.2f dBm", 
+                                                lastClickX, lastClickY, signalPower);
+                                    }
+                                    
+                                    signalInfo = buffer;
+                                } else {
+                                    signalInfo = "Pas de données";
+                                }
+                                
+                                // Rendre le texte ligne par ligne
+                                SDL_Color textColor = {0, 0, 0, 255}; // Noir pour le texte
+                                
+                                std::stringstream ss(signalInfo);
+                                std::string line;
+                                int lineY = powerInfoBox.y + 10;
+                                
+                                while (std::getline(ss, line)) {
+                                    SDL_Texture* lineTexture = renderText(renderer, font, line.c_str(), textColor);
+                                    
+                                    if (lineTexture) {
+                                        int lineWidth, lineHeight;
+                                        SDL_QueryTexture(lineTexture, nullptr, nullptr, &lineWidth, &lineHeight);
+                                        
+                                        // Positionner le texte dans le rectangle d'info
+                                        SDL_Rect textRect = {
+                                            powerInfoBox.x + 10,
+                                            lineY,
+                                            lineWidth,
+                                            lineHeight
+                                        };
+                                        
+                                        SDL_RenderCopy(renderer, lineTexture, nullptr, &textRect);
+                                        SDL_DestroyTexture(lineTexture);
+                                        
+                                        lineY += lineHeight + 5; // Espacement entre les lignes
+                                    }
+                                }
+                                
+                                // Si un émetteur est sélectionné, afficher des informations supplémentaires
+                                if (emitterSelected && selectedEmitter) {
+                                    std::string emitterInfo = "Emetteur sélectionné";
+                                    
+                                    // Formater les informations de l'émetteur
+                                    snprintf(buffer, sizeof(buffer), "Emetteur: (%.0f, %.0f)",
+                                            selectedEmitter->x, selectedEmitter->y, selectedEmitter->power);
+                                    
+                                    // Rendre le texte de l'émetteur
+                                    SDL_Texture* emitterTexture = renderText(renderer, font, buffer, textColor);
+                                    
+                                    if (emitterTexture) {
+                                        int textWidth, textHeight;
+                                        SDL_QueryTexture(emitterTexture, nullptr, nullptr, &textWidth, &textHeight);
+                                        
+                                        SDL_Rect textRect = {
+                                            powerInfoBox.x + 10,
+                                            lineY,
+                                            textWidth,
+                                            textHeight
+                                        };
+                                        
+                                        SDL_RenderCopy(renderer, emitterTexture, nullptr, &textRect);
+                                        SDL_DestroyTexture(emitterTexture);
+                                    }
+                                }
+                            }
 
                             SDL_RenderPresent(renderer);
                         }
