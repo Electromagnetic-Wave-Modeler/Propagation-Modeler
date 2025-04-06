@@ -8,11 +8,9 @@
 #include <ostream>
 
 
-
 /**
  * Classe représentant un obstacle dans une simulation de propagation de signal.
  * Gère deux types d'obstacles : rectangles avec épaisseur et cercles.
- * Fournit des méthodes pour détecter les collisions et calculer les zones d'influence.
  */
 class Obstacle {
     protected : 

@@ -32,7 +32,7 @@ bool MurDroit::isPointInside(double px, double py) const {
 bool MurDroit::isBlocking(double x, double y, double emitter_x, double emitter_y) const {
     // Vérification rapide: si l'émetteur ou le point est à l'intérieur de l'obstacle
     if (isPointInside(x, y) || isPointInside(emitter_x, emitter_y)) return true;
-    else return false;
+    // else return false;
     
 
     // Cas vertical optimisé (avec épaisseur)
@@ -69,6 +69,7 @@ bool MurDroit::isBlocking(double x, double y, double emitter_x, double emitter_y
             double y_right = slope * right + b;
             bool valid_right = (t_right >= 0 && t_right <= 1) && 
                             (y_right >= y1 - EPSILON && y_right <= y2 + EPSILON);
+
 
             return valid_left || valid_right;
         }
@@ -114,7 +115,8 @@ bool MurDroit::isBlocking(double x, double y, double emitter_x, double emitter_y
 
             return valid_bottom || valid_top;
         }
-
-        return false;
     }
+    
+    return false;
+
 } 

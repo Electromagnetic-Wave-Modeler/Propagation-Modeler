@@ -47,7 +47,7 @@ int main() {
     // Export en CSV pour vérification des valeurs
     //room.exportToCSV("heatmap.csv");
 
-    std::cout << "Done!" << std::endl;
+    std::cout << "Carte de puissance calculee" << std::endl;
 
     displaying(&room);
 
