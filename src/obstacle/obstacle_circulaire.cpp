@@ -6,7 +6,12 @@
 
 #include "../headers/obstacle.hpp"
 
-
+/**
+* Constructeur pour les obstacles circulaires
+* @param cx,cy Coordonnées du centre du cercle
+* @param radius Rayon du cercle
+* @param attenuation Perte de signal en dB lors de la traversée
+*/
 obstacleCirculaire::obstacleCirculaire(double cx, double cy, double radius, double attenuation)
 : Obstacle(attenuation), cx(cx), cy(cy), radius(radius) {}
 

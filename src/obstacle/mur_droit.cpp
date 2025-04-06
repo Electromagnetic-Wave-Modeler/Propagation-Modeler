@@ -6,6 +6,7 @@
 
 #include "../headers/obstacle.hpp"
 
+
 MurDroit::MurDroit(double x1, double y1, double x2, double y2, double thickness, double attenuation)
 : Mur(x1, y1, x2, y2, thickness, attenuation) {
     // Normaliser les coordonnées pour que (x1,y1) soit toujours le coin inférieur gauche

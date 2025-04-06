@@ -11,6 +11,7 @@
 #include "../headers/display.hpp"
 #include "../headers/room.hpp"
 #include "../headers/emitter.hpp"
+#include "../headers/obstacle.hpp"
 #include "../lib/SDL2_ttf/include/SDL_ttf.h"
 
 #define CELL_SIZE 1 // Taille de la cellule de la grille
@@ -230,8 +231,20 @@ int displaying(Room* room) {
     // Définition du bouton
     SDL_Rect addWallButton = {10, gridHeight * CELL_SIZE - 40, 120, 30}; // Position en bas à gauche
     bool buttonHovered = false;
+
+    //fenetre d'affichage des valeurs de puissance, en bas à droite
+    SDL_Rect powerInfoBox = {gridWidth * CELL_SIZE - 200, gridHeight * CELL_SIZE - 100, 180, 80};
+    SDL_Color powerInfoColor = {255, 255, 255, 255}; // Couleur blanche
+
+
+
+
     
     while (running) {
+
+    //dessiner la zone d'information, en bas à droite, en blanc
+    SDL_SetRenderDrawColor(renderer, powerInfoColor.r, powerInfoColor.g, powerInfoColor.b, powerInfoColor.a);
+    SDL_RenderFillRect(renderer, &powerInfoBox);
     // Récupérer la position de la souris pour le survol du bouton
     int mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
@@ -248,7 +261,7 @@ int displaying(Room* room) {
             }
             else if (event.type == SDL_MOUSEBUTTONDOWN) {
                 if (event.button.button == SDL_BUTTON_LEFT) {
-                        // Vérifier si le clic est sur le bouton
+                        // Vérifier si le clic est sur le bouton d'ajout de mur
                     if (mouseX >= addWallButton.x && mouseX <= addWallButton.x + addWallButton.w &&
                         mouseY >= addWallButton.y && mouseY <= addWallButton.y + addWallButton.h) {
                         
@@ -312,6 +325,8 @@ int displaying(Room* room) {
                             std::cout << "Clic a la position: (" << lastClickX << ", " 
                                     << lastClickY << ")" << std::endl;
                             std::cout << "Puissance du signal: " << signalPower << " dBm" << std::endl;
+
+
                             
                             showClickInfo = true;
                             
@@ -392,6 +407,8 @@ int displaying(Room* room) {
                                 // Libérer la texture après usage
                                 SDL_DestroyTexture(buttonTextTexture);
                             }
+
+
 
 
                             SDL_RenderPresent(renderer);

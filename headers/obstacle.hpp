@@ -53,13 +53,7 @@ class Obstacle {
 };
 
 
-/**
-* Constructeur pour les obstacles rectangulaires
-* @param x1,y1 Coordonnées du premier point définissant le rectangle
-* @param x2,y2 Coordonnées du deuxième point définissant le rectangle
-* @param thickness Épaisseur de l'obstacle perpendiculairement au segment
-* @param attenuation Perte de signal en dB lors de la traversée
-*/
+
 class Mur : public Obstacle{
     protected :
         double x1, y1;      // Point de départ du segment
@@ -92,15 +86,6 @@ class Mur : public Obstacle{
         * Calculs effectués une seule fois lors de la construction
         */
         void precalculerParametresGeometriques();
-
-        /**
-        * Implémente le théorème de l'axe séparateur (SAT)
-        * @param e_axe,e_perp Projection de l'émetteur
-        * @param p_axe,p_perp Projection du récepteur
-        * @param min_a,max_a Plage de l'axe principal
-        * @param min_p,max_p Plage de l'axe perpendiculaire
-        * @return true si les projections se chevauchent sur tous les axes
-        */
 
         bool satTest(double e_axe, double e_perp, double p_axe, double p_perp, double min_a, double max_a, double min_p, double max_p) const;
 
@@ -148,12 +133,7 @@ class MurDroit:public Mur{
 };
 
 
-/**
-* Constructeur pour les obstacles circulaires
-* @param cx,cy Coordonnées du centre du cercle
-* @param radius Rayon du cercle
-* @param attenuation Perte de signal en dB lors de la traversée
-*/
+
 class obstacleCirculaire : public Obstacle {
     protected :
         double cx, cy;      // Centre du cercle

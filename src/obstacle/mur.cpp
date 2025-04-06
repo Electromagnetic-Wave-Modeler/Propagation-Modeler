@@ -4,7 +4,8 @@
 #include <iostream>
 #include <ostream>
 
-#include "../headers/obstacle.hpp"
+#include "../../headers/obstacle.hpp"
+
 
 void Mur::precalculerParametresGeometriques() {
     // Calcul du point médian
@@ -35,6 +36,15 @@ void Mur::precalculerParametresGeometriques() {
     params_geo.demi_longueur = params_geo.longueur * 0.5;
     params_geo.demi_epaisseur = thickness * 0.5;
 }
+
+/**
+* Implémente le théorème de l'axe séparateur (SAT)
+* @param e_axe,e_perp Projection de l'émetteur
+* @param p_axe,p_perp Projection du récepteur
+* @param min_a,max_a Plage de l'axe principal
+* @param min_p,max_p Plage de l'axe perpendiculaire
+* @return true si les projections se chevauchent sur tous les axes
+*/
 
 bool Mur::satTest(double e_axe, double e_perp, double p_axe, double p_perp, double min_a, double max_a, double min_p, double max_p) const {
     // Calcul des intervalles du segment
