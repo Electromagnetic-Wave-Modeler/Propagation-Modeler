@@ -14,7 +14,7 @@ all: $(TARGET) run
 linux: $(TARGET) runlinux clean
 
 $(TARGET): main.cpp
-	@g++ ${SOURCES} -o $(TARGET) -Iheaders/ -I${SDL2_PATH}/include -I${SDL2_TTF_PATH}/include -L${SDL2_PATH}/lib -L${SDL2_TTF_PATH}/lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf
+	@g++ ${SOURCES} -o $(TARGET) -Iheaders/ -I${SDL2_PATH}/include -I${SDL2_TTF_PATH}/include -L${SDL2_PATH}/lib -L${SDL2_TTF_PATH}/lib -lSDL2main -lSDL2 -lSDL2_ttf
 
 run: $(TARGET)
 	@./$(TARGET).exe
