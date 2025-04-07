@@ -206,36 +206,8 @@ int displaying(Room* room) {
         return 1;
     }
 
-<<<<<<< HEAD
-    // Dessiner la heatmap
-    for (int y = 0; y < gridHeight; y++) {
-        for (int x = 0; x < gridWidth; x++) {
-            double power = (*powerGrid)[y][x];
-            SDL_Color color;
-            
-            if (power == -555) {
-                // Couleur noire pour les obstacles et les bords
-                color = {0, 0, 0, 255};
-            } else {
-                // Pour les valeurs normales, utiliser le dégradé
-                color = dBmToColor(power, minPower, maxPower);
-            }
-            SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-
-            SDL_Rect rect = {
-                x * cellSize,
-                y * cellSize,
-                cellSize,
-                cellSize
-            };
-            
-            SDL_RenderFillRect(renderer, &rect);
-        }
-    }
-=======
     handlepowerMap(room, renderer); 
 
->>>>>>> 6342e4a8d7b42d8fc7b342b387891e74bda67b81
     SDL_RenderPresent(renderer);
 
     // Variables pour suivre le dernier clic
@@ -538,7 +510,3 @@ int displaying(Room* room) {
 
     return 0;
 }
-<<<<<<< HEAD
-
-=======
->>>>>>> 6342e4a8d7b42d8fc7b342b387891e74bda67b81
