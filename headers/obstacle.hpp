@@ -4,13 +4,21 @@
 #include <cmath>
 #include <algorithm>
 #include <stdexcept>
+<<<<<<< HEAD
 
+=======
+#include <iostream>
+#include <ostream>
+>>>>>>> 6342e4a8d7b42d8fc7b342b387891e74bda67b81
 
 
 /**
  * Classe représentant un obstacle dans une simulation de propagation de signal.
  * Gère deux types d'obstacles : rectangles avec épaisseur et cercles.
+<<<<<<< HEAD
  * Fournit des méthodes pour détecter les collisions et calculer les zones d'influence.
+=======
+>>>>>>> 6342e4a8d7b42d8fc7b342b387891e74bda67b81
  */
 class Obstacle {
     protected : 
@@ -19,12 +27,20 @@ class Obstacle {
 
     public:
 
+<<<<<<< HEAD
         Obstacle(double attenuation) : attenuation(attenuation) {}
+=======
+        Obstacle(double attenuation);
+>>>>>>> 6342e4a8d7b42d8fc7b342b387891e74bda67b81
 
         // Constante pour les comparaisons de précision flottante
         static constexpr double EPSILON = 1e-6;
 
+<<<<<<< HEAD
         // Destructeur virtuel pour permettre une destruction correcte des classes dérivées
+=======
+        // Destructeur virtuel pour permettre une destruction des classes dérivées
+>>>>>>> 6342e4a8d7b42d8fc7b342b387891e74bda67b81
         virtual ~Obstacle() {};
         
         /**
@@ -51,6 +67,7 @@ class Obstacle {
 };
 
 
+<<<<<<< HEAD
 /**
 * Constructeur pour les obstacles rectangulaires
 * @param x1,y1 Coordonnées du premier point définissant le rectangle
@@ -58,6 +75,9 @@ class Obstacle {
 * @param thickness Épaisseur de l'obstacle perpendiculairement au segment
 * @param attenuation Perte de signal en dB lors de la traversée
 */
+=======
+
+>>>>>>> 6342e4a8d7b42d8fc7b342b387891e74bda67b81
 class Mur : public Obstacle{
     protected :
         double x1, y1;      // Point de départ du segment
@@ -89,6 +109,7 @@ class Mur : public Obstacle{
         * Prépare les paramètres géométriques essentiels
         * Calculs effectués une seule fois lors de la construction
         */
+<<<<<<< HEAD
         void precalculerParametresGeometriques() {
             // Calcul du point médian
             params_geo.mid_x = (x1 + x2) * 0.5;
@@ -232,6 +253,26 @@ class Mur : public Obstacle{
             return (std::abs(proj_axe) <= pg.demi_longueur + EPSILON) && 
                    (std::abs(proj_perp) <= pg.demi_epaisseur + EPSILON);
         }
+=======
+        void precalculerParametresGeometriques();
+
+        bool satTest(double e_axe, double e_perp, double p_axe, double p_perp, double min_a, double max_a, double min_p, double max_p) const;
+
+
+    public :
+        Mur(double x1, double y1, double x2, double y2, double thickness, double attenuation);
+
+        double getX1() const { return x1; }
+        double getY1() const { return y1; }
+        double getX2() const { return x2; }
+        double getY2() const { return y2; }
+
+        
+        void getExpandedBounds(double& min_x, double& min_y, double& max_x, double& max_y) const override;  
+
+        // Vérifier si un point est à l'intérieur de l'obstacle (avec épaisseur)
+        bool isPointInside(double px, double py) const override;
+>>>>>>> 6342e4a8d7b42d8fc7b342b387891e74bda67b81
 
         /**
         * Algorithme de Liang-Barsky pour l'intersection segment-rectangle
@@ -239,6 +280,7 @@ class Mur : public Obstacle{
         * @param rect_x2,rect_y2 Coin supérieur droit
         * @return true si intersection détectée
         */
+<<<<<<< HEAD
         bool segmentIntersectsRectangle(double x0, double y0, double x1, double y1, double rect_x1, double rect_y1, double rect_x2, double rect_y2) const {
             double t_min = 0.0;
             double t_max = 1.0;
@@ -295,6 +337,11 @@ class Mur : public Obstacle{
                 -pg.demi_epaisseur, pg.demi_epaisseur // Plage axe perpendiculaire
             );
         }
+=======
+        bool segmentIntersectsRectangle(double x0, double y0, double x1, double y1, double rect_x1, double rect_y1, double rect_x2, double rect_y2) const;
+
+        bool isBlocking(double x, double y, double emitter_x, double emitter_y) const;
+>>>>>>> 6342e4a8d7b42d8fc7b342b387891e74bda67b81
 
 };
 
@@ -304,6 +351,7 @@ class MurDroit:public Mur{
     
     public:
 
+<<<<<<< HEAD
         MurDroit(double x1, double y1, double x2, double y2, double thickness, double attenuation)
         : Mur(x1, y1, x2, y2, thickness, attenuation) {
             // Normaliser les coordonnées pour que (x1,y1) soit toujours le coin inférieur gauche
@@ -429,11 +477,27 @@ class MurDroit:public Mur{
 * @param attenuation Perte de signal en dB lors de la traversée
 */
 class MeubleRond : public Obstacle {
+=======
+        MurDroit(double x1, double y1, double x2, double y2, double thickness, double attenuation);
+
+    
+        // Vérifier si un point est à l'intérieur de l'obstacle (avec épaisseur)
+        bool isPointInside(double px, double py) const override;
+
+        // Optimisation: intersection entre ligne (émetteur-point) et obstacle avec épaisseur
+        bool isBlocking(double x, double y, double emitter_x, double emitter_y) const override;
+};
+
+
+
+class obstacleCirculaire : public Obstacle {
+>>>>>>> 6342e4a8d7b42d8fc7b342b387891e74bda67b81
     protected :
         double cx, cy;      // Centre du cercle
         double radius;      // Rayon du cercle
 
     public :
+<<<<<<< HEAD
         MeubleRond(double cx, double cy, double radius, double attenuation)
             : Obstacle(attenuation), cx(cx), cy(cy), radius(radius) {}
 
@@ -451,11 +515,20 @@ class MeubleRond : public Obstacle {
             max_x = cx + radius;
             max_y = cy + radius;
         }
+=======
+        obstacleCirculaire(double cx, double cy, double radius, double attenuation);
+
+
+        bool isPointInside(double px, double py) const;
+
+        void getExpandedBounds(double& min_x, double& min_y, double& max_x, double& max_y) const;
+>>>>>>> 6342e4a8d7b42d8fc7b342b387891e74bda67b81
 
         /*
         * Vérifie l'intersection avec un obstacle circulaire (logique interne)
         */
         // Optimisation: intersection entre ligne (émetteur-point) et obstacle avec épaisseur
+<<<<<<< HEAD
         bool isBlocking(double x, double y, double emitter_x, double emitter_y) const override {
             // Vérification rapide: si l'émetteur ou le point est à l'intérieur de l'obstacle
             if (isPointInside(x, y) || isPointInside(emitter_x, emitter_y)) {
@@ -479,6 +552,9 @@ class MeubleRond : public Obstacle {
 
             return (t1 >= 0 && t1 <= 1) || (t2 >= 0 && t2 <= 1);
         }
+=======
+        bool isBlocking(double x, double y, double emitter_x, double emitter_y) const override;
+>>>>>>> 6342e4a8d7b42d8fc7b342b387891e74bda67b81
 
         double getCenterX() const { return cx; }
         double getCenterY() const { return cy; }
