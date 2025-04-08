@@ -113,9 +113,13 @@ void Room::markRoomBoundaries() {
         powerMap[y][0] = -555;        // Bord gauche
         powerMap[y][1] = -555;        // Zone de sécurité
         powerMap[y][2] = -555;        // Zone de sécurité
+        powerMap[y][3] = -555;        // Zone de sécurité
+        powerMap[y][4] = -555;        // Zone de sécurité
         powerMap[y][width-1] = -555;  // Bord droit
         powerMap[y][width-2] = -555;  // Zone de sécurité
         powerMap[y][width-3] = -555;  // Zone de sécurité
+        powerMap[y][width-4] = -555;  // Zone de sécurité
+        powerMap[y][width-5] = -555;  // Zone de sécurité
 
     }
 
@@ -124,8 +128,13 @@ void Room::markRoomBoundaries() {
         powerMap[0][x] = -555;        // Bord supérieur
         powerMap[1][x] = -555;        // Zone de sécurité
         powerMap[2][x] = -555;        // Zone de sécurité
+        powerMap[3][x] = -555;        // Zone de sécurité
+        powerMap[4][x] = -555;        // Zone de sécurité
+        powerMap[5][x] = -555;        // Zone de sécurité
         powerMap[height-1][x] = -555; // Bord inférieur
         powerMap[height-2][x] = -555;  // Zone de sécurité
         powerMap[height-3][x] = -555;  // Zone de sécurité
+        powerMap[height-4][x] = -555;  // Zone de sécurité
+        powerMap[height-5][x] = -555;  // Zone de sécurité
     }
 }

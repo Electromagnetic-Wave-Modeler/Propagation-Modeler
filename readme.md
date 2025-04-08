@@ -45,9 +45,11 @@ SDL 2 et SDL_ttf g++
 installer avec
 
 
-`sudo apt update
-sudo apt install libsdl2-dev
-sudo apt install libsdl2-ttf-dev`
+`sudo apt update`
+
+`sudo apt install libsdl2-dev`
+
+`sudo apt install libsdl2-ttf-dev`
 
 ## Compilation et exécution
 

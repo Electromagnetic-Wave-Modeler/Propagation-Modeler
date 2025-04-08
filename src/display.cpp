@@ -119,8 +119,10 @@ int handlepowerMap(Room* room, SDL_Renderer* renderer){
             SDL_Color color;
             if (val == -555) {
                 color = {0, 0, 0, 255}; // noir
+
             } else {
                 color = dBmToColor(val, minPower, maxPower);
+
             }
             SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
             

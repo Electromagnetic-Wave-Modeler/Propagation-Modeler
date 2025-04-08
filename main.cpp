@@ -20,27 +20,36 @@
 int main() {
     Room room(1220, 600); // Résolution Full HD
 
-    // Ajout d'un émetteur Wi-Fi
-    room.addEmitter(Emitter(150, 150, -30, 2.4e9)); // -30 dBm, 2.4 GHz
-    room.addEmitter(Emitter(500, 500, -28, 2.4e9)); // -28 dBm, 2.4 GHz
-
-    // Ajout d'un mur vertical avec épaisseur (utilisation de MurDroit)
-    room.addObstacle(new MurDroit(100, 200, 100, 300, 10, 5)); // Mur vertical, épaisseur 10, 5 dB d'atténuation
-
-    // Ajout d'un mur horizontal avec épaisseur (utilisation de MurDroit)
-
-    // room.addObstacle(new MurDroit(50, 50, 250, 50, 15, 20)); // Mur horizontal, épaisseur 5, 3 dB d'atténuation
-
-    room.addObstacle(new MurDroit(50, 50, 250, 50, 15, 20)); // Mur horizontal, épaisseur 5, 3 dB d'atténuation
+    // Émetteurs Wi-Fi (un dans chaque pièce)
+    room.addEmitter(Emitter(300, 200, -30, 2.4e9));  // Émetteur dans le salon
 
 
-    // Ajout d'un mur rectangulaire (utilisation de la classe Mur générique)
-    room.addObstacle(new Mur(400, 450, 600, 650, 5, 10));  // Mur rectangulaire, 10 dB d'atténuation
+    // Murs extérieurs de l'appartement (bordures)
+    // Les bordures sont déjà les limites de la heatmap, pas besoin d'ajouter de murs
 
-    // Ajout de meubles circulaires (utilisation de obstacleCirculaire)
-    room.addObstacle(new obstacleCirculaire(200, 300, 15, 5));    // Meuble rond, 5 dB d'atténuation
-    room.addObstacle(new obstacleCirculaire(600, 200, 30, 10));   // Meuble rond, 10 dB d'atténuation
+    // Murs intérieurs pour diviser l'appartement en 3 pièces
 
+    // Mur vertical pour séparer salon et chambre
+    room.addObstacle(new MurDroit(600, 0, 600, 200, 15, 10));
+
+    room.addObstacle(new MurDroit(600, 250, 600, 350, 15, 10));
+
+    room.addObstacle(new MurDroit(900, 250, 900, 350, 5, 50));
+
+
+    // Mur horizontal partiel pour séparer le salon/chambre de la cuisine/salle de bain
+    room.addObstacle(new MurDroit(0, 350, 400, 350, 15, 10));
+
+    room.addObstacle(new MurDroit(500, 350, 1220, 350, 15, 10));
+
+
+    // Salon
+    // room.addObstacle(new obstacleCirculaire(150, 150, 20, 5));    
+
+
+
+    // Cuisine
+    room.addObstacle(new obstacleCirculaire(200, 500, 25, 6));   // Table à manger
     // Calcul de la puissance en chaque point
     room.computeSignalMap();
 
