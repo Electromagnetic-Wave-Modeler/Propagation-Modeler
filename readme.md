@@ -13,7 +13,7 @@ WinProp utilisent cette même méthode.
 
 ### Visualisation du signal
 
-Génère des cartes thermiques montrant la force du signal dans une pièce
+Génère des cartes thermiques montrant la force du signal dans une pièce, ou à l'extérieur
 
 ### Émetteurs multiples
 
@@ -31,7 +31,12 @@ Différents types d'obstacles avec propriétés d'atténuation personnalisables 
 
 ### Interface interactive
 
-Construite avec SDL2 pour une expérience graphique réactive
+Construite avec SDL2 et SDL_ttf pour une expérience graphique interactive.
+
+Chaque point est espacé de 1 cm, il y a un pixel pour un point, ceci est modulable, en changeant le RESOLUTION_FACTOR dans emitter.hpp, c'est un rapport de division.
+Il est actuellement à 100, ce qui fait passer les distances du mètre au centimètre, pour rester en mètres par exemple, mettre 1.
+
+Par exemple pour une pièce de 5m x 6m il y a 500 points par 600, puisque la résolution est de 1 cm la fenêtre aura une taille de 500 par 600 pixels.
 
 ## Prérequis
 
@@ -58,11 +63,18 @@ Compiler et exécuter le projet avec le makefile :
 `make` sous windows ou
 `make linux`
 
+La dernière version est la branche main.
+
 ## Utilisation
 
 Ajouter des émetteurs : Créer des sources de signal avec des niveaux de puissance personnalisés. Vous pouvez placer des obstacles ou des sources en modifiant le code de main.cpp ou en ajoutant des murs via le bouton "ADD WALL".
 
 Exporter les données : Sauvegarder les résultats de simulation pour une analyse ultérieure via la fonction ExportToCSV().
+
+Obtenir les valeurs de puissance : cliquez sur un point de la pièce simulée, la valeur de puissance sera affichée en bas à droite.
+
+Changer la position d'un émetteur : cliquer sur une source, le prochain endroit où vous cliquerez fixera la nouvelle position de la source !
+
 
 ## Structure du projet
 
